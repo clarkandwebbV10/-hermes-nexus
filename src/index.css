@@ -1,0 +1,57 @@
+@import "tailwindcss";
+
+/* ----------------------------------------------------------------
+   Theme tokens (CSS variables) — used both for direct references
+   in body styles below AND for the data-theme overrides.
+   ---------------------------------------------------------------- */
+:root {
+  --nexus-bg: #0a0a0a;
+  --nexus-card: #141414;
+  --nexus-accent: #3b82f6;
+  --nexus-text: #ffffff;
+  --nexus-muted: #a1a1aa;
+}
+
+[data-theme='hogwarts'] {
+  --nexus-bg: #1a1410;
+  --nexus-card: #2d241e;
+  --nexus-accent: #d4af37;
+  --nexus-text: #f5ebd7;
+  --nexus-muted: #8b735b;
+}
+
+[data-theme='marvel'] {
+  --nexus-bg: #0f0f2d;
+  --nexus-card: #1a1a4d;
+  --nexus-accent: #ff0000;
+  --nexus-text: #ffffff;
+  --nexus-muted: #a0a0ff;
+}
+
+[data-theme='batman'] {
+  --nexus-bg: #050505;
+  --nexus-card: #111111;
+  --nexus-accent: #facc15;
+  --nexus-text: #ffffff;
+  --nexus-muted: #444444;
+}
+
+/* ----------------------------------------------------------------
+   Tailwind v4 @theme block — maps our CSS variables to Tailwind
+   color tokens so utilities like `bg-nexus-card`, `text-nexus-text`
+   work the same way they did in v3, but the colors automatically
+   react to data-theme overrides because they reference variables.
+   ---------------------------------------------------------------- */
+@theme {
+  --color-nexus-bg: var(--nexus-bg);
+  --color-nexus-card: var(--nexus-card);
+  --color-nexus-accent: var(--nexus-accent);
+  --color-nexus-text: var(--nexus-text);
+  --color-nexus-muted: var(--nexus-muted);
+}
+
+body {
+  background-color: var(--nexus-bg);
+  color: var(--nexus-text);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
