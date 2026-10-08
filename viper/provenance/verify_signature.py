@@ -14,7 +14,7 @@ def sha256_file(path):
     return h.hexdigest()
 
 def main():
-    ap=argparse.ArgumentParser(description="Verify a Viper/Great Ape Ed25519 provenance receipt")
+    ap=argparse.ArgumentParser(description="Verify a Hidden Viper / Great Ape AI Ed25519 provenance receipt")
     ap.add_argument("receipt")
     ap.add_argument("--public-key",default=str(Path(__file__).with_name("OPERATOR_PUBLIC_KEY.pem")))
     ap.add_argument("--artifact")
