@@ -1,0 +1,18 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "kaizen-viper"
+version = "0.1.1"
+description = "Independent ground-state verification for AI-agent claims"
+readme = "README.md"
+requires-python = ">=3.11"
+authors = [{name = "Clark Webb"}]
+license = {file = "LICENSE.md"}
+
+[project.scripts]
+viper = "viper:main"
+
+[tool.setuptools]
+py-modules = ["viper"]
