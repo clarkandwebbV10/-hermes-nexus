@@ -1,0 +1,21 @@
+{
+  "payload": {
+    "schema": "great-ape-ai.provenance-receipt/v1",
+    "receiptId": "prov-20261008T014650Z-3ecd5d3f6e6c",
+    "createdAtUtc": "2026-10-08T01:46:50.866568+00:00",
+    "title": "Kaizen Viper 0.1.0 public MVP",
+    "artifactPath": "C:\\GreatApeAI\\Releases\\Public\\Kaizen-Viper\\RELEASE_MANIFEST.json",
+    "artifactBytes": 3263,
+    "artifactSha256": "3ecd5d3f6e6c90ae2bee1f27f75de7b10697ebd56fda3dde5e2c7d639e779f3c",
+    "originClaim": "Clark Webb: product direction AI agents make claims; Viper checks reality, derived from Hidden Viper and Claim-Is-Not-State doctrine.",
+    "implementationContribution": "AI-assisted implementation of the minimal local verifier, documentation, tests, and release packaging.",
+    "sourceReference": "Great Ape AI / Hidden Viper lineage plus signed public portfolio commitment",
+    "signer": "Great Ape AI local provenance key on operator-controlled machine",
+    "algorithm": "Ed25519",
+    "publicKeyFingerprintSha256": "aff7cdb5252eb5b5c9872d6bce09f986ab9e8eb9d68b76a0fd92f4487429be20",
+    "evidentiaryBoundary": "Cryptographic integrity and possession evidence; not by itself a legal finding of ownership, inventorship, authorship, or patent priority."
+  },
+  "canonicalPayloadSha256": "98b9c1c7436797d8f82d86d37d60fdec4c3404bdb8d66c2810cf1c85c6a08087",
+  "signatureBase64": "EyIZfs9i3TFcR0Ydp5sfrkWziOhOIEHF8Qpd/+UlPGatlZ2W2zGzc++SJo8CtF9CPHW4laMyS8aHF/5taZmcCw==",
+  "publicKeyPemFile": "C:\\GreatApeAI\\Control\\Provenance\\operator-ed25519-public.pem"
+}
