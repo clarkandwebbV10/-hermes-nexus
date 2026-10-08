@@ -1,0 +1,54 @@
+[
+  {
+    "schema": "kaizen-viper.receipt/v1",
+    "viperVersion": "0.1.0",
+    "observedAtUtc": "2026-10-08T01:46:50.239721+00:00",
+    "claim": {
+      "id": "demo-file",
+      "kind": "file_exists",
+      "target": "viper-demo-output.txt",
+      "expected": true
+    },
+    "status": "VERIFIED",
+    "observation": {
+      "path": "C:\\GreatApeAI\\Releases\\Public\\Kaizen-Viper\\viper-demo-output.txt",
+      "exists": true
+    },
+    "receiptSha256": "5897226c7c1d78afe22dba88a1963b72de881b94f093c6f0e1e798f8462db5d4"
+  },
+  {
+    "schema": "kaizen-viper.receipt/v1",
+    "viperVersion": "0.1.0",
+    "observedAtUtc": "2026-10-08T01:46:50.240718+00:00",
+    "claim": {
+      "id": "demo-content",
+      "kind": "file_contains",
+      "target": "viper-demo-output.txt",
+      "expected": "deployment-state=ready"
+    },
+    "status": "VERIFIED",
+    "observation": {
+      "path": "C:\\GreatApeAI\\Releases\\Public\\Kaizen-Viper\\viper-demo-output.txt",
+      "contains": true,
+      "needleSha256": "57bcbe53ee6d10a95deae7810a865732c2ef2b8e28a2899773194ded569f30e0"
+    },
+    "receiptSha256": "8373c9db90b37c21b2ac8d8029a9777ca6bfd5646d5928bec0eaffd665f1bac5"
+  },
+  {
+    "schema": "kaizen-viper.receipt/v1",
+    "viperVersion": "0.1.0",
+    "observedAtUtc": "2026-10-08T01:46:50.244730+00:00",
+    "claim": {
+      "id": "demo-contradiction",
+      "kind": "file_exists",
+      "target": "definitely-not-created.txt",
+      "expected": true
+    },
+    "status": "CONTRADICTED",
+    "observation": {
+      "path": "definitely-not-created.txt",
+      "exists": false
+    },
+    "receiptSha256": "5567a282181cb049c43a96f28896fe3e5ecd3ca4ab45f5298b3b900bf6bce471"
+  }
+]
