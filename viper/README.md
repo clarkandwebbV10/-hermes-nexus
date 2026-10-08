@@ -34,6 +34,19 @@ hidden-viper demo
 
 The shorter `viper` command remains as a compatibility alias.
 
+## Generic JSONL adapter
+
+Any agent or workflow that can emit newline-delimited JSON claims can pipe them into Hidden Viper without a framework-specific integration:
+
+```bash
+cat claims.jsonl | hidden-viper stream --out receipts.jsonl
+```
+
+The stream exits:
+- `0` when every claim is VERIFIED;
+- `1` when at least one claim is CONTRADICTED and none are UNVERIFIED;
+- `2` when at least one claim is UNVERIFIED, including malformed JSON.
+
 Supported checks:
 - `file_exists`
 - `file_sha256`
@@ -54,7 +67,8 @@ The agent channel may contain plans, tool calls, assertions and artifacts. Hidde
 ## Current proof
 
 - deterministic local verifier
-- 6 deterministic tests passing before publication of 0.1.2
+- generic JSONL stdin adapter
+- 8 deterministic tests passing before publication of 0.1.3
 - public demo receipts including a deliberately contradicted completion claim
 - Ed25519-signed release and portfolio commitments
 - CI configured for Python 3.11, 3.12, and 3.13
@@ -69,7 +83,7 @@ The signature proves integrity and possession of the committed bytes. It is not,
 
 ## Status
 
-**0.1.2 developer preview.**
+**0.1.3 developer preview.**
 
 The deeper private R&D layers are not published here. This repository intentionally exposes enough to test the product thesis without dumping the private research corpus.
 
