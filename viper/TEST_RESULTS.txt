@@ -6,6 +6,6 @@ test_tcp_listen_verified (test_viper.ViperTests.test_tcp_listen_verified) ... ok
 test_unsupported (test_viper.ViperTests.test_unsupported) ... ok
 
 ----------------------------------------------------------------------
-Ran 6 tests in 0.340s
+Ran 6 tests in 0.474s
 
 OK
