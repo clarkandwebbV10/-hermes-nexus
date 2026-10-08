@@ -1,6 +1,6 @@
 # Contributing
 
-Viper is currently a source-visible developer preview.
+Hidden Viper is currently a source-visible developer preview.
 
 Useful contributions include:
 - reproducible false-completion examples;
