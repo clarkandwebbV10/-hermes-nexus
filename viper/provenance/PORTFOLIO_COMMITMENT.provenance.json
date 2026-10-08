@@ -1,0 +1,21 @@
+{
+  "payload": {
+    "schema": "great-ape-ai.provenance-receipt/v1",
+    "receiptId": "prov-20261008T014646Z-ae9c4c4259fb",
+    "createdAtUtc": "2026-10-08T01:46:46.809217+00:00",
+    "title": "Public Portfolio Commitment 2026-10-08",
+    "artifactPath": "C:\\GreatApeAI\\Evidence\\Provenance\\PUBLIC-PORTFOLIO-COMMITMENT-20261008.json",
+    "artifactBytes": 1240,
+    "artifactSha256": "ae9c4c4259fbcf3dc28cf38262b46a0793cb8fc0423701a4f0bde86914cda70a",
+    "originClaim": "Clark Webb: public cryptographic commitment to the private founder portfolio snapshot and Hermes development corpus.",
+    "implementationContribution": "Generated from locally hashed artifacts and database metadata; no private conversation contents are published.",
+    "sourceReference": "Private signed FOUNDER-IP-SNAPSHOT-20261008.json",
+    "signer": "Great Ape AI local provenance key on operator-controlled machine",
+    "algorithm": "Ed25519",
+    "publicKeyFingerprintSha256": "aff7cdb5252eb5b5c9872d6bce09f986ab9e8eb9d68b76a0fd92f4487429be20",
+    "evidentiaryBoundary": "Cryptographic integrity and possession evidence; not by itself a legal finding of ownership, inventorship, authorship, or patent priority."
+  },
+  "canonicalPayloadSha256": "10559bf77633efe1056e97356ed21075b1f77df8e78f81e3e45fca4b6d387bbc",
+  "signatureBase64": "OljWTXyZTchfv4YTVxyrrSMx0S7mv0KBy8Plvl3pnMapfnI36T78hwJBIOy48vRGID/ZLrFXyytquOmds30rAA==",
+  "publicKeyPemFile": "C:\\GreatApeAI\\Control\\Provenance\\operator-ed25519-public.pem"
+}
