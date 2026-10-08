@@ -1,0 +1,26 @@
+{
+  "schema": "kaizen-ai.public-portfolio-commitment/v1",
+  "createdAtUtc": "2026-10-08T01:46:46.376782+00:00",
+  "operator": "Clark Webb",
+  "product": "Viper",
+  "companyCandidate": "Kaizen AI",
+  "snapshotRootSha256": "1fe712dbf9e868d28cb6a98feadd868885f093c08752ea40828aef74de8f6f95",
+  "committedProjectArtifactCount": 17939,
+  "hermesCorpus": {
+    "profile": "cyberneurova",
+    "storedMessageRows": 75400,
+    "activeMessageRows": 71099,
+    "sessionRows": 936,
+    "stateDatabaseSha256": "a330c2b6e3dc8c7f30864e8c2f6f94a3ac30ebcd8fe3ba2d99156ff0c3aa7fcb",
+    "denseSessionId": "20260910_012538_a84d0e",
+    "denseSessionRows": 4246,
+    "denseSessionActiveRows": 4246,
+    "denseSessionExportSha256": "726b50e4a1d07f96c209fea64245a47c6d5057f0657cf5effa972814aee912e4"
+  },
+  "signingKey": {
+    "algorithm": "Ed25519",
+    "publicKeyFingerprintSha256": "aff7cdb5252eb5b5c9872d6bce09f986ab9e8eb9d68b76a0fd92f4487429be20",
+    "privateKeyStorage": "Windows DPAPI user-bound encrypted blob; private key not published"
+  },
+  "evidentiaryBoundary": "Integrity and possession evidence only; not by itself a legal determination of ownership, inventorship, authorship, trade-secret status, or patent priority."
+}
