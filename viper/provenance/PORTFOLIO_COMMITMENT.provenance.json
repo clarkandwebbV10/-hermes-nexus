@@ -1,12 +1,12 @@
 {
   "payload": {
     "schema": "great-ape-ai.provenance-receipt/v1",
-    "receiptId": "prov-20261008T025525Z-c26d4d7fba26",
-    "createdAtUtc": "2026-10-08T02:55:25.292284+00:00",
+    "receiptId": "prov-20261008T030849Z-ff603bae6272",
+    "createdAtUtc": "2026-10-08T03:08:49.235930+00:00",
     "title": "Hidden Viper Public Portfolio Commitment 2026-10-08",
     "artifactPath": "C:\\GreatApeAI\\Evidence\\Provenance\\PUBLIC-PORTFOLIO-COMMITMENT-20261008.json",
     "artifactBytes": 1328,
-    "artifactSha256": "c26d4d7fba269e85945d3fd370f732cd395fb9f1a8f580662b0528a38c0c6810",
+    "artifactSha256": "ff603bae62728ac61684ff872cb6ba0d015ef97ffa9dacd4b1a0f87b6e5b6939",
     "originClaim": "Clark Webb: public cryptographic commitment to the private founder portfolio snapshot, Hermes development corpus, and canonical Hidden Viper product identity.",
     "implementationContribution": "Generated from locally hashed artifacts and database metadata; no private conversation content is published.",
     "sourceReference": "Private signed FOUNDER-IP-SNAPSHOT-20261008.json",
@@ -15,7 +15,7 @@
     "publicKeyFingerprintSha256": "aff7cdb5252eb5b5c9872d6bce09f986ab9e8eb9d68b76a0fd92f4487429be20",
     "evidentiaryBoundary": "Cryptographic integrity and possession evidence; not by itself a legal finding of ownership, inventorship, authorship, or patent priority."
   },
-  "canonicalPayloadSha256": "b151f5d97237aaa1fbaaeb8184d36acd5237eeb96213c5fc4c554ef99bc0942e",
-  "signatureBase64": "MJ/douPxQ8GB/iH3D91LSQSNAVto+bne8zoajJ+Tdl0/6vMKv+DhR0+Yj8OCpzf+fT5E49IVok0ZyF7eAq8LCA==",
+  "canonicalPayloadSha256": "a49b1770c3119ac5f71ad5c986cd56a2fd2980a81fa111fb90664b3fe334ccd3",
+  "signatureBase64": "C9RRDp95uoiMZBthWJJt5tJ3WSptKadngLNSpHOtmyFbhE1EOMbq6vTA43tLG9h1EwoEFpN5pyEihDMWn3nHBg==",
   "publicKeyPemFile": "C:\\GreatApeAI\\Control\\Provenance\\operator-ed25519-public.pem"
 }
