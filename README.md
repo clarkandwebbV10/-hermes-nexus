@@ -1,12 +1,12 @@
 # Hermes Nexus
 
-## Viper
+## Hidden Viper
 
-**Your AI says it finished. Viper checks.**
+**Your AI says it finished. Hidden Viper checks.**
 
-The newest public project in this repository is [Viper](./viper), a local verification sidecar that checks AI-agent completion claims against observable ground state and emits evidence receipts.
+The newest public project in this repository is [Hidden Viper](./viper), a local verification sidecar that checks AI-agent completion claims against observable ground state and emits evidence receipts.
 
-- [Viper quick start](./viper/README.md)
+- [Hidden Viper quick start](./viper/README.md)
 - [Architecture](./viper/docs/ARCHITECTURE.md)
 - [Demo receipts](./viper/DEMO_RECEIPTS.json)
 - [Signed provenance commitment](./viper/provenance/PORTFOLIO_COMMITMENT.json)
