@@ -1,7 +1,7 @@
 from __future__ import annotations
 import argparse, datetime as dt, hashlib, json, socket, urllib.request
 from pathlib import Path
-VERSION="0.1.1"
+VERSION="0.1.2"
 def utc_now(): return dt.datetime.now(dt.timezone.utc).isoformat()
 def sha256_file(path):
     h=hashlib.sha256()
@@ -43,7 +43,7 @@ def check_http_status(claim):
         return False,{"url":url,"error":f"{type(exc).__name__}: {exc}"}
 CHECKS={"file_exists":check_file_exists,"file_sha256":check_file_sha256,"file_contains":check_file_contains,"tcp_listen":check_tcp_listen,"http_status":check_http_status}
 def verify(claim):
-    receipt={"schema":"kaizen-viper.receipt/v1","viperVersion":VERSION,"observedAtUtc":utc_now(),"claim":claim}
+    receipt={"schema":"hidden-viper.receipt/v1","hiddenViperVersion":VERSION,"observedAtUtc":utc_now(),"claim":claim}
     kind=claim.get("kind")
     if kind not in CHECKS:
         receipt["status"]="UNVERIFIED"; receipt["observation"]={"error":f"unsupported claim kind: {kind!r}"}
@@ -54,7 +54,7 @@ def verify(claim):
             receipt["status"]="UNVERIFIED"; receipt["observation"]={"error":f"{type(exc).__name__}: {exc}"}
     receipt["receiptSha256"]=canonical_hash(receipt); return receipt
 def run_demo():
-    demo=Path("viper-demo-output.txt"); demo.write_text("deployment-state=ready\n",encoding="utf-8")
+    demo=Path("hidden-viper-demo-output.txt"); demo.write_text("deployment-state=ready\n",encoding="utf-8")
     claims=[
         {"id":"demo-file","kind":"file_exists","target":str(demo),"expected":True},
         {"id":"demo-content","kind":"file_contains","target":str(demo),"expected":"deployment-state=ready"},
@@ -64,7 +64,7 @@ def run_demo():
     except OSError: pass
     return 0 if [r["status"] for r in receipts]==["VERIFIED","VERIFIED","CONTRADICTED"] else 2
 def main():
-    ap=argparse.ArgumentParser(description="Viper: independent ground-state verifier for AI-agent claims")
+    ap=argparse.ArgumentParser(description="Hidden Viper: independent ground-state verifier for AI-agent claims")
     ap.add_argument("--version",action="version",version=VERSION)
     sub=ap.add_subparsers(dest="cmd",required=True); sub.add_parser("demo")
     v=sub.add_parser("verify"); v.add_argument("claim_json"); v.add_argument("--out")
