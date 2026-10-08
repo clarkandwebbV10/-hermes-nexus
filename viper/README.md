@@ -20,6 +20,8 @@ Hidden Viper returns **VERIFIED**, **CONTRADICTED**, or **UNVERIFIED**.
 
 ## Quick start
 
+From this directory:
+
 ```bash
 python viper.py demo
 python viper.py verify examples/claim-file-exists.json
@@ -32,22 +34,9 @@ python -m pip install -e .
 hidden-viper demo
 ```
 
-The shorter `viper` command remains as a compatibility alias.
+The legacy `viper` CLI alias remains available during the developer-preview transition.
 
-## Generic JSONL adapter
-
-Any agent or workflow that can emit newline-delimited JSON claims can pipe them into Hidden Viper without a framework-specific integration:
-
-```bash
-cat claims.jsonl | hidden-viper stream --out receipts.jsonl
-```
-
-The stream exits:
-- `0` when every claim is VERIFIED;
-- `1` when at least one claim is CONTRADICTED and none are UNVERIFIED;
-- `2` when at least one claim is UNVERIFIED, including malformed JSON.
-
-Supported checks:
+Supported MVP checks:
 - `file_exists`
 - `file_sha256`
 - `file_contains`
@@ -64,14 +53,18 @@ Hidden Viper deliberately does **not** execute arbitrary shell commands in this 
 
 The agent channel may contain plans, tool calls, assertions and artifacts. Hidden Viper uses an independent observation path and records what it can actually verify.
 
+## Formal verification track
+
+The `formal/` directory uses Lean 4 to prove invariants about the verification model and Viability-Pool filtering logic. It is intentionally narrow: Lean can prove properties of the formal model, but it does not magically prove that a sensor, filesystem, network endpoint, or external agent told the truth.
+
 ## Current proof
 
 - deterministic local verifier
-- generic JSONL stdin adapter
-- 8 deterministic tests passing before publication of 0.1.3
+- 6 local unit tests passing
 - public demo receipts including a deliberately contradicted completion claim
 - Ed25519-signed release and portfolio commitments
-- CI configured for Python 3.11, 3.12, and 3.13
+- Python CI configured for 3.11, 3.12, and 3.13
+- Lean formal-model CI pinned to a specific Lean toolchain
 
 ## Provenance
 
@@ -83,7 +76,7 @@ The signature proves integrity and possession of the committed bytes. It is not,
 
 ## Status
 
-**0.1.3 developer preview.**
+**0.1.2 developer preview.**
 
 The deeper private R&D layers are not published here. This repository intentionally exposes enough to test the product thesis without dumping the private research corpus.
 
