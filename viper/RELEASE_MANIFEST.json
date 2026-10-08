@@ -1,0 +1,102 @@
+{
+  "schema": "kaizen-viper.release-manifest/v1",
+  "createdAtUtc": "2026-10-08T01:46:50.530125+00:00",
+  "version": "0.1.0",
+  "files": [
+    {
+      "path": ".gitignore",
+      "bytes": 53,
+      "sha256": "9e12b627ed78e2164bcc36924efb9ec7141d505cb5cdb2a42e4c8750e479a9a7"
+    },
+    {
+      "path": "__pycache__/viper.cpython-311.pyc",
+      "bytes": 11100,
+      "sha256": "80c6cde15a7e21bf8aee82f62502fb0836b150bd0381ff40449720a62c9b80d3"
+    },
+    {
+      "path": "DEMO_RECEIPTS.json",
+      "bytes": 1728,
+      "sha256": "040eed8165d9314f9535c5d10d2e13ebf22a3f9e8f8f9fc6df0bb1500777dbaa"
+    },
+    {
+      "path": "docs/ARCHITECTURE.md",
+      "bytes": 508,
+      "sha256": "7fadb449f7f3ae2bbd4df22ca8a0d90af182bf38b022e62436c64b936344edd6"
+    },
+    {
+      "path": "docs/ROADMAP.md",
+      "bytes": 365,
+      "sha256": "f80b693af45c427a071cb408b5ab8014f6c41161e625633c90e9fcd3bdc9aeb6"
+    },
+    {
+      "path": "examples/claim-file-exists.json",
+      "bytes": 87,
+      "sha256": "b5d801f7b553f68ffadcb14fbc969426d5eec0561ccd327ac8d406c930643259"
+    },
+    {
+      "path": "LICENSE.md",
+      "bytes": 432,
+      "sha256": "60e6ca4b38334ccb21b25b7d482274f60009eb911b1c348b9407873412d017d1"
+    },
+    {
+      "path": "provenance/OPERATOR_PUBLIC_KEY.pem",
+      "bytes": 113,
+      "sha256": "da187fb26608414fb4f7381aa62e072fba11e07b862812f8aca6af79df486768"
+    },
+    {
+      "path": "provenance/PORTFOLIO_COMMITMENT.json",
+      "bytes": 1240,
+      "sha256": "ae9c4c4259fbcf3dc28cf38262b46a0793cb8fc0423701a4f0bde86914cda70a"
+    },
+    {
+      "path": "provenance/PORTFOLIO_COMMITMENT.provenance.json",
+      "bytes": 1523,
+      "sha256": "e0438c244bbc24e65ac5c937ecc990f9b6036c6675c1189041a40b53bbf7be45"
+    },
+    {
+      "path": "provenance/VERIFYING.md",
+      "bytes": 301,
+      "sha256": "8e563f93643ea563c29842676f96d90a89ab024ebdf6398f03a43951e9e917b3"
+    },
+    {
+      "path": "README.md",
+      "bytes": 2159,
+      "sha256": "d4de7d989f3d8e9d99c21a169f56dac4a52b536013c6e168d496ffb87a58df49"
+    },
+    {
+      "path": "RELEASE_MANIFEST.json",
+      "bytes": 2754,
+      "sha256": "5d09cf485035ed944f1198d1b1c10a58e17d661b715990ada9365dad559ff0c3"
+    },
+    {
+      "path": "RELEASE_MANIFEST.json.provenance.json",
+      "bytes": 1542,
+      "sha256": "7f67f6062fb5a3f7c2bf22991bb9ed3c67d016107d49aa7d9e62310003681005"
+    },
+    {
+      "path": "RELEASE_MANIFEST.provenance.json",
+      "bytes": 1542,
+      "sha256": "7f67f6062fb5a3f7c2bf22991bb9ed3c67d016107d49aa7d9e62310003681005"
+    },
+    {
+      "path": "TEST_RESULTS.txt",
+      "bytes": 403,
+      "sha256": "10295e11807a0b5277509d7c3ccfee41ab4ae1d0e46b74b9824d69e9abe4104d"
+    },
+    {
+      "path": "tests/__pycache__/test_viper.cpython-311.pyc",
+      "bytes": 3808,
+      "sha256": "48be609c36e197603c8c906f2821c7130312360f3c4b65c5338552910fb94927"
+    },
+    {
+      "path": "tests/test_viper.py",
+      "bytes": 1194,
+      "sha256": "cce1581380ca9b3a7d6acf9068f86436b05d61c66cf8253a74dad144b317ffa0"
+    },
+    {
+      "path": "viper.py",
+      "bytes": 4638,
+      "sha256": "317cd1f5cb9e8b4749a7bd60f140ce97b8a1b245c4c2b61abf7075cf4bf47fa9"
+    }
+  ]
+}
