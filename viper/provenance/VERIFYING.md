@@ -1,4 +1,4 @@
-# Verifying Viper provenance
+# Verifying Hidden Viper provenance
 
 This public directory contains:
 - `PORTFOLIO_COMMITMENT.json`
