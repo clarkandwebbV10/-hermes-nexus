@@ -1,11 +1,13 @@
-test_file_contains_verified (test_viper.ViperTests.test_file_contains_verified) ... ok
-test_file_exists_verified (test_viper.ViperTests.test_file_exists_verified) ... ok
-test_missing_file_contradicted (test_viper.ViperTests.test_missing_file_contradicted) ... ok
-test_sha256 (test_viper.ViperTests.test_sha256) ... ok
-test_tcp_listen_verified (test_viper.ViperTests.test_tcp_listen_verified) ... ok
-test_unsupported (test_viper.ViperTests.test_unsupported) ... ok
+test_file_contains_verified (test_viper.HiddenViperTests.test_file_contains_verified) ... ok
+test_file_exists_verified (test_viper.HiddenViperTests.test_file_exists_verified) ... ok
+test_jsonl_stream_marks_bad_json_unverified (test_viper.HiddenViperTests.test_jsonl_stream_marks_bad_json_unverified) ... ok
+test_jsonl_stream_preserves_contradiction (test_viper.HiddenViperTests.test_jsonl_stream_preserves_contradiction) ... ok
+test_missing_file_contradicted (test_viper.HiddenViperTests.test_missing_file_contradicted) ... ok
+test_sha256 (test_viper.HiddenViperTests.test_sha256) ... ok
+test_tcp_listen_verified (test_viper.HiddenViperTests.test_tcp_listen_verified) ... ok
+test_unsupported_is_unverified (test_viper.HiddenViperTests.test_unsupported_is_unverified) ... ok
 
 ----------------------------------------------------------------------
-Ran 6 tests in 0.474s
+Ran 8 tests in 0.033s
 
 OK
