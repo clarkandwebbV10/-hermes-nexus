@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Kaizen Viper Claim",
+  "type": "object",
+  "required": ["kind", "target"],
+  "properties": {
+    "id": {"type": "string"},
+    "kind": {
+      "type": "string",
+      "enum": ["file_exists", "file_sha256", "file_contains", "tcp_listen", "http_status"]
+    },
+    "target": {},
+    "expected": {},
+    "host": {"type": "string"},
+    "timeoutSeconds": {"type": "number", "minimum": 0},
+    "encoding": {"type": "string"}
+  },
+  "additionalProperties": true
+}
