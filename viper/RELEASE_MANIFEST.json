@@ -1,33 +1,129 @@
 {
   "schema": "hidden-viper.release-manifest/v1",
-  "createdAtUtc": "2026-10-08T03:04:29.122502+00:00",
+  "createdAtUtc": "2026-10-08T03:08:58.185864+00:00",
   "product": "Hidden Viper",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "scope": "source release; transient build metadata excluded",
   "files": [
-    {"path": ".gitignore", "bytes": 53, "sha256": "9e12b627ed78e2164bcc36924efb9ec7141d505cb5cdb2a42e4c8750e479a9a7"},
-    {"path": "CANONICAL_NAME.md", "bytes": 323, "sha256": "1e32884a7bfe1003cf88b40af4a6b5bc3e082747aeb61f2228d73f685fd7adc3"},
-    {"path": "CHANGELOG.md", "bytes": 563, "sha256": "9c580bf6b813e29a4c2c10edd0f6074b26f76702e337fbb4bd28e35460d2451e"},
-    {"path": "claim.schema.json", "bytes": 752, "sha256": "30772ab74bd020d8b3f43858d045da4921e13d69277972f1c4a3503ac8988771"},
-    {"path": "CONTRIBUTING.md", "bytes": 394, "sha256": "12d5639e37cd6bedeed375d82ecd8eb3ac2233e8cbf10dffd689622309e26b56"},
-    {"path": "DEMO_RECEIPTS.json", "bytes": 1774, "sha256": "b17668f763bed8164aa32c7b571e0b8db6d72f783da847b0f7d8474b9628c107"},
-    {"path": "docs/ARCHITECTURE.md", "bytes": 541, "sha256": "1c83a3964d2b3d3e3f32a01a612dc7e14c0aa889a1b0762a8a620ac648e54bc6"},
-    {"path": "docs/ROADMAP.md", "bytes": 513, "sha256": "df3ea939ea4e6424b33488910728f5a788925afc7ea95549cf89a11c071581ed"},
-    {"path": "examples/claim-file-exists.json", "bytes": 87, "sha256": "b5d801f7b553f68ffadcb14fbc969426d5eec0561ccd327ac8d406c930643259"},
-    {"path": "examples/claim-hash.json", "bytes": 109, "sha256": "8a41f4c9b593441d7e7926c6e38590148f98fd1e5aceddacd2599695071681af"},
-    {"path": "examples/claim-http.json", "bytes": 117, "sha256": "7a4b2c7b99317ddcf7c3034d7c283bf9b9a160589ed6f47e6dc318195e29f88e"},
-    {"path": "LICENSE.md", "bytes": 432, "sha256": "60e6ca4b38334ccb21b25b7d482274f60009eb911b1c348b9407873412d017d1"},
-    {"path": "provenance/OPERATOR_PUBLIC_KEY.pem", "bytes": 113, "sha256": "da187fb26608414fb4f7381aa62e072fba11e07b862812f8aca6af79df486768"},
-    {"path": "provenance/PORTFOLIO_COMMITMENT.json", "bytes": 1328, "sha256": "c26d4d7fba269e85945d3fd370f732cd395fb9f1a8f580662b0528a38c0c6810"},
-    {"path": "provenance/PORTFOLIO_COMMITMENT.provenance.json", "bytes": 1576, "sha256": "f776774ebce9630413bd5fc64361c36d9a650e6ee28f66921c97756bf0f13d20"},
-    {"path": "provenance/verify_signature.py", "bytes": 1805, "sha256": "154a18590e5bfb58d60ae74041dc3e1410dbb737118ca146451f54f9c0de7a90"},
-    {"path": "provenance/VERIFYING.md", "bytes": 1077, "sha256": "f3f602d3e8170b7563715ba639b5efb03d676cc4dea84318459e54e472669ce5"},
-    {"path": "pyproject.toml", "bytes": 453, "sha256": "c78d64c3ba9a9dbff38529359fb800015c9e977c3985aaa19c12a967328c40aa"},
-    {"path": "README.md", "bytes": 2945, "sha256": "e186631076c6831a5f4b4628be2cb8b526b2eaace15abc3e287faec8b2a3572e"},
-    {"path": "SECURITY.md", "bytes": 405, "sha256": "e487f659d75037a57934fe06fdaf0ed198ca80ec0b2f91569256841f5320b255"},
-    {"path": "TEST_RESULTS.txt", "bytes": 573, "sha256": "254ae574a8ccee539d42067d4345d111909e1ec653dced155385cc3f7aec6233"},
-    {"path": "tests/test_viper.py", "bytes": 1858, "sha256": "c1fb32f418d25a9ec0e1d62e4a0a5d235d4999df6d1c4208b450956abc167101"},
-    {"path": "viper.py", "bytes": 4658, "sha256": "cab4c0af4202cccc538fddeb6ecc9b4d12789c73a802ae1835e7e99fd913e0f7"},
-    {"path": "WHEEL_BUILD.txt", "bytes": 679, "sha256": "055b2cd63a3395a701b26e18795ed8b66cbf076cdd5106a6874f76d7ac7d8eb5"}
+    {
+      "path": ".gitignore",
+      "bytes": 53,
+      "sha256": "9e12b627ed78e2164bcc36924efb9ec7141d505cb5cdb2a42e4c8750e479a9a7"
+    },
+    {
+      "path": "CANONICAL_NAME.md",
+      "bytes": 323,
+      "sha256": "1e32884a7bfe1003cf88b40af4a6b5bc3e082747aeb61f2228d73f685fd7adc3"
+    },
+    {
+      "path": "CHANGELOG.md",
+      "bytes": 766,
+      "sha256": "8685af7f0b2e899cd9ff67a1f8d4cd896c5c4db6f7192997e4bd97b0e204e611"
+    },
+    {
+      "path": "claim.schema.json",
+      "bytes": 752,
+      "sha256": "30772ab74bd020d8b3f43858d045da4921e13d69277972f1c4a3503ac8988771"
+    },
+    {
+      "path": "CONTRIBUTING.md",
+      "bytes": 394,
+      "sha256": "12d5639e37cd6bedeed375d82ecd8eb3ac2233e8cbf10dffd689622309e26b56"
+    },
+    {
+      "path": "DEMO_RECEIPTS.json",
+      "bytes": 1774,
+      "sha256": "55bbb1f6b26a0174ade0048b129f01e71369a672e1e9c89ed96b2d9af0cf2c3f"
+    },
+    {
+      "path": "docs/ARCHITECTURE.md",
+      "bytes": 541,
+      "sha256": "1c83a3964d2b3d3e3f32a01a612dc7e14c0aa889a1b0762a8a620ac648e54bc6"
+    },
+    {
+      "path": "docs/ROADMAP.md",
+      "bytes": 613,
+      "sha256": "41bcf2c8361b538f717f1811a58f7a65b619fa36dfa58e7532a5a3a3817601f4"
+    },
+    {
+      "path": "examples/claim-file-exists.json",
+      "bytes": 87,
+      "sha256": "b5d801f7b553f68ffadcb14fbc969426d5eec0561ccd327ac8d406c930643259"
+    },
+    {
+      "path": "examples/claim-hash.json",
+      "bytes": 109,
+      "sha256": "8a41f4c9b593441d7e7926c6e38590148f98fd1e5aceddacd2599695071681af"
+    },
+    {
+      "path": "examples/claim-http.json",
+      "bytes": 117,
+      "sha256": "7a4b2c7b99317ddcf7c3034d7c283bf9b9a160589ed6f47e6dc318195e29f88e"
+    },
+    {
+      "path": "LICENSE.md",
+      "bytes": 432,
+      "sha256": "60e6ca4b38334ccb21b25b7d482274f60009eb911b1c348b9407873412d017d1"
+    },
+    {
+      "path": "provenance/OPERATOR_PUBLIC_KEY.pem",
+      "bytes": 113,
+      "sha256": "da187fb26608414fb4f7381aa62e072fba11e07b862812f8aca6af79df486768"
+    },
+    {
+      "path": "provenance/PORTFOLIO_COMMITMENT.json",
+      "bytes": 1328,
+      "sha256": "ff603bae62728ac61684ff872cb6ba0d015ef97ffa9dacd4b1a0f87b6e5b6939"
+    },
+    {
+      "path": "provenance/PORTFOLIO_COMMITMENT.provenance.json",
+      "bytes": 1576,
+      "sha256": "8c16fbbbb6e77d43784960395e3577daa8e7527585a15218a6df8f7026479141"
+    },
+    {
+      "path": "provenance/verify_signature.py",
+      "bytes": 1805,
+      "sha256": "154a18590e5bfb58d60ae74041dc3e1410dbb737118ca146451f54f9c0de7a90"
+    },
+    {
+      "path": "provenance/VERIFYING.md",
+      "bytes": 1077,
+      "sha256": "f3f602d3e8170b7563715ba639b5efb03d676cc4dea84318459e54e472669ce5"
+    },
+    {
+      "path": "pyproject.toml",
+      "bytes": 434,
+      "sha256": "12e142c9bb6e2662beb25645b70ee7972b7c132a7947c8ac81d61fe97f2864f4"
+    },
+    {
+      "path": "README.md",
+      "bytes": 3330,
+      "sha256": "e163920d9eb846b0b2aed4ac76c1d43c0861f99ee0ecb13dd88c39460f512bb6"
+    },
+    {
+      "path": "SECURITY.md",
+      "bytes": 405,
+      "sha256": "e487f659d75037a57934fe06fdaf0ed198ca80ec0b2f91569256841f5320b255"
+    },
+    {
+      "path": "TEST_RESULTS.txt",
+      "bytes": 885,
+      "sha256": "1aad50fa91bea3f4a3c31cfcc4d09b6c48d77ff1709b9debb0fbe0255757600d"
+    },
+    {
+      "path": "tests/test_viper.py",
+      "bytes": 3079,
+      "sha256": "684d163d9844937451a01659923874b2b7660320db0cc3caeb1fac7a53aa462f"
+    },
+    {
+      "path": "viper.py",
+      "bytes": 7834,
+      "sha256": "1eafe93827be6ab45ef521edaf6b380f058fc65789898008a710c71f571d8f76"
+    },
+    {
+      "path": "WHEEL_BUILD.txt",
+      "bytes": 679,
+      "sha256": "210ca3a0185a9cb4821e71c5889738329c810ad1d035ea99639a0066eb32808e"
+    }
   ]
 }
