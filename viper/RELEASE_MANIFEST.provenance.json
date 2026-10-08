@@ -1,21 +1,21 @@
 {
   "payload": {
     "schema": "great-ape-ai.provenance-receipt/v1",
-    "receiptId": "prov-20261008T025846Z-75df6aef5650",
-    "createdAtUtc": "2026-10-08T02:58:46.129255+00:00",
+    "receiptId": "prov-20261008T030429Z-d28564c0febf",
+    "createdAtUtc": "2026-10-08T03:04:29.607626+00:00",
     "title": "Hidden Viper 0.1.2 public source release",
     "artifactPath": "C:\\GreatApeAI\\Releases\\Public\\Kaizen-Viper\\RELEASE_MANIFEST.json",
-    "artifactBytes": 3736,
-    "artifactSha256": "75df6aef5650963cc8bcf154f09561018568b5ab0bc541da546f707c4d30c011",
+    "artifactBytes": 4063,
+    "artifactSha256": "d28564c0febf3a904cae2e58c7a3f6f3cb5d27c6724420e28ebfe23eeccb9c23",
     "originClaim": "Clark Webb: product direction 'AI agents make claims; Hidden Viper checks reality', derived from Hidden Viper and Claim-Is-Not-State doctrine.",
-    "implementationContribution": "AI-assisted implementation, tests, packaging, documentation, and release hardening.",
+    "implementationContribution": "AI-assisted implementation, tests, packaging, documentation, provenance, and release hardening.",
     "sourceReference": "Great Ape AI / Hidden Viper lineage plus signed public portfolio commitment",
     "signer": "Great Ape AI local provenance key on operator-controlled machine",
     "algorithm": "Ed25519",
     "publicKeyFingerprintSha256": "aff7cdb5252eb5b5c9872d6bce09f986ab9e8eb9d68b76a0fd92f4487429be20",
     "evidentiaryBoundary": "Cryptographic integrity and possession evidence; not by itself a legal finding of ownership, inventorship, authorship, or patent priority."
   },
-  "canonicalPayloadSha256": "b4e99ab51207df14b874c7dd0a79303c11fd51d1511e1044ae20e3ee57c3b22b",
-  "signatureBase64": "rCxBurrSzXMS50Svk1slDROjn0UNkNP43e7hpxUsJpq+7oW1Gtm6Zhq9iyCPk+6LTXqWV+nnoh2Is+Cfd+gIDQ==",
+  "canonicalPayloadSha256": "af70f99200cce851187d7529c8d6cee59d57f9065fa745c5723eea0628221a1e",
+  "signatureBase64": "zX5coAgCnncrFNtg3sYXecyFaBPy6VvNyssLru2TTqSzfQMbj35s4YlpoBeJX50dvO38BuUj6q3cf6QDjldSBA==",
   "publicKeyPemFile": "C:\\GreatApeAI\\Control\\Provenance\\operator-ed25519-public.pem"
 }
