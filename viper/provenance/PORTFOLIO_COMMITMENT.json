@@ -1,8 +1,8 @@
 {
   "schema": "kaizen-ai.public-portfolio-commitment/v1",
-  "createdAtUtc": "2026-10-08T01:46:46.376782+00:00",
+  "createdAtUtc": "2026-10-08T02:55:24.663265+00:00",
   "operator": "Clark Webb",
-  "product": "Viper",
+  "product": "Hidden Viper",
   "companyCandidate": "Kaizen AI",
   "snapshotRootSha256": "1fe712dbf9e868d28cb6a98feadd868885f093c08752ea40828aef74de8f6f95",
   "committedProjectArtifactCount": 17939,
@@ -22,5 +22,7 @@
     "publicKeyFingerprintSha256": "aff7cdb5252eb5b5c9872d6bce09f986ab9e8eb9d68b76a0fd92f4487429be20",
     "privateKeyStorage": "Windows DPAPI user-bound encrypted blob; private key not published"
   },
-  "evidentiaryBoundary": "Integrity and possession evidence only; not by itself a legal determination of ownership, inventorship, authorship, trade-secret status, or patent priority."
+  "evidentiaryBoundary": "Integrity and possession evidence only; not by itself a legal determination of ownership, inventorship, authorship, trade-secret status, or patent priority.",
+  "canonicalProductName": "Hidden Viper",
+  "publicReleaseVersion": "0.1.2"
 }
