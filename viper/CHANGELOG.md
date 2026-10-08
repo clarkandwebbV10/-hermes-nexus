@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.3 - 2026-10-08
+- added provider-agnostic JSONL stdin adapter
+- added deterministic stream exit semantics
+- added malformed-input handling as UNVERIFIED rather than guessed
+- expanded test suite from 6 to 8 tests
+
 ## 0.1.2 - 2026-10-08
 - corrected canonical public product name to Hidden Viper
 - added `hidden-viper` canonical CLI while retaining `viper` as a compatibility alias
