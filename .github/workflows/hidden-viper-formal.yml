@@ -1,0 +1,24 @@
+name: Hidden Viper Formal
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "viper/formal/**"
+      - ".github/workflows/hidden-viper-formal.yml"
+  pull_request:
+    paths:
+      - "viper/formal/**"
+      - ".github/workflows/hidden-viper-formal.yml"
+
+jobs:
+  formal:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: leanprover/lean-action@v1
+        with:
+          lake-package-directory: viper/formal
+          build: "true"
+          leanchecker: "true"
+          axiom-audit: "true"
