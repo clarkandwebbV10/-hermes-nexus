@@ -1,9 +1,11 @@
+test_file_contains_verified (test_viper.ViperTests.test_file_contains_verified) ... ok
 test_file_exists_verified (test_viper.ViperTests.test_file_exists_verified) ... ok
 test_missing_file_contradicted (test_viper.ViperTests.test_missing_file_contradicted) ... ok
 test_sha256 (test_viper.ViperTests.test_sha256) ... ok
+test_tcp_listen_verified (test_viper.ViperTests.test_tcp_listen_verified) ... ok
 test_unsupported (test_viper.ViperTests.test_unsupported) ... ok
 
 ----------------------------------------------------------------------
-Ran 4 tests in 0.012s
+Ran 6 tests in 0.340s
 
 OK
