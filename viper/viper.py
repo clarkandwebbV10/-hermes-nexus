@@ -1,7 +1,7 @@
 from __future__ import annotations
 import argparse, datetime as dt, hashlib, json, socket, urllib.request
 from pathlib import Path
-VERSION="0.1.0"
+VERSION="0.1.1"
 def utc_now(): return dt.datetime.now(dt.timezone.utc).isoformat()
 def sha256_file(path):
     h=hashlib.sha256()
