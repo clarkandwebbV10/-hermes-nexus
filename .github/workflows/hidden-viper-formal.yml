@@ -16,9 +16,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: leanprover/lean-action@v1
-        with:
-          lake-package-directory: viper/formal
-          build: "true"
-          leanchecker: "true"
-          axiom-audit: "true"
+      - name: Install elan
+        run: |
+          curl https://elan.lean-lang.org/elan-init.sh -sSf | sh -s -- -y
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Resolve pinned Lean toolchain
+        working-directory: viper/formal
+        run: |
+          $HOME/.elan/bin/lean --version
+          $HOME/.elan/bin/lake --version
+          $HOME/.elan/bin/lake update
+      - name: Build formal model
+        working-directory: viper/formal
+        run: $HOME/.elan/bin/lake build
