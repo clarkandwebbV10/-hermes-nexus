@@ -1,26 +1,24 @@
-# Viper
+# Hidden Viper
 
-[![Viper CI](https://github.com/clarkandwebbV10/-hermes-nexus/actions/workflows/viper-ci.yml/badge.svg)](https://github.com/clarkandwebbV10/-hermes-nexus/actions/workflows/viper-ci.yml)
+[![Hidden Viper CI](https://github.com/clarkandwebbV10/-hermes-nexus/actions/workflows/viper-ci.yml/badge.svg)](https://github.com/clarkandwebbV10/-hermes-nexus/actions/workflows/viper-ci.yml)
 
-**Your AI says it finished. Viper checks.**
+**Your AI says it finished. Hidden Viper checks.**
 
-Viper is a local, provider-agnostic verification sidecar for AI agents and automated workflows. It turns completion claims into independently checkable receipts by comparing what an agent said happened with observable ground state.
+Hidden Viper is a local, provider-agnostic verification sidecar for AI agents and automated workflows. It turns completion claims into independently checkable receipts by comparing what an agent said happened with observable ground state.
 
 ## Why
 
 A successful tool call is not the same thing as a successful outcome.
 
 Examples:
-- an agent says it created a file; Viper checks the filesystem;
-- an agent says a service is live; Viper checks the port or HTTP endpoint;
-- an agent says an artifact matches a requested hash; Viper recomputes it;
-- an agent says text exists in a file; Viper checks the bytes.
+- an agent says it created a file; Hidden Viper checks the filesystem;
+- an agent says a service is live; Hidden Viper checks the port or HTTP endpoint;
+- an agent says an artifact matches a requested hash; Hidden Viper recomputes it;
+- an agent says text exists in a file; Hidden Viper checks the bytes.
 
-Viper returns **VERIFIED**, **CONTRADICTED**, or **UNVERIFIED**.
+Hidden Viper returns **VERIFIED**, **CONTRADICTED**, or **UNVERIFIED**.
 
 ## Quick start
-
-From this directory:
 
 ```bash
 python viper.py demo
@@ -31,10 +29,12 @@ For an editable CLI install:
 
 ```bash
 python -m pip install -e .
-viper demo
+hidden-viper demo
 ```
 
-Supported MVP checks:
+The shorter `viper` command remains as a compatibility alias.
+
+Supported checks:
 - `file_exists`
 - `file_sha256`
 - `file_contains`
@@ -43,18 +43,18 @@ Supported MVP checks:
 
 The claim envelope is described in `claim.schema.json`.
 
-Viper deliberately does **not** execute arbitrary shell commands in this public MVP.
+Hidden Viper deliberately does **not** execute arbitrary shell commands in this public MVP.
 
 ## Design rule
 
 > **Claim is not state.**
 
-The agent channel may contain plans, tool calls, assertions and artifacts. Viper uses an independent observation path and records what it can actually verify.
+The agent channel may contain plans, tool calls, assertions and artifacts. Hidden Viper uses an independent observation path and records what it can actually verify.
 
 ## Current proof
 
 - deterministic local verifier
-- 6 local unit tests passing before publication of 0.1.1
+- 6 deterministic tests passing before publication of 0.1.2
 - public demo receipts including a deliberately contradicted completion claim
 - Ed25519-signed release and portfolio commitments
 - CI configured for Python 3.11, 3.12, and 3.13
@@ -69,7 +69,7 @@ The signature proves integrity and possession of the committed bytes. It is not,
 
 ## Status
 
-**0.1.1 developer preview.**
+**0.1.2 developer preview.**
 
 The deeper private R&D layers are not published here. This repository intentionally exposes enough to test the product thesis without dumping the private research corpus.
 
