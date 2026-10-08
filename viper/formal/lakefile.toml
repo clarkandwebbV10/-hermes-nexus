@@ -1,0 +1,6 @@
+name = "hidden_viper_formal"
+version = "0.1.0"
+defaultTargets = ["HiddenViperFormal"]
+
+[[lean_lib]]
+name = "HiddenViperFormal"
