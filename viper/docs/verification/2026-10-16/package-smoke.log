@@ -1,0 +1,87 @@
++ /opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python -m pip wheel --no-index --no-build-isolation --no-deps --wheel-dir /tmp/hidden-viper-package-check-80i74843/wheels /tmp/hidden-viper-package-check-80i74843/source
+Processing ./source
+  Preparing metadata (pyproject.toml): started
+  Preparing metadata (pyproject.toml): finished with status 'done'
+Building wheels for collected packages: kaizen-hidden-viper
+  Building wheel for kaizen-hidden-viper (pyproject.toml): started
+  Building wheel for kaizen-hidden-viper (pyproject.toml): finished with status 'done'
+  Created wheel for kaizen-hidden-viper: filename=kaizen_hidden_viper-0.1.3-py3-none-any.whl size=6716 sha256=11c2bad61a4f68d589a5b59ff7fe10a1e0d1990281cde4f9553afa23839ae813
+  Stored in directory: /tmp/pip-ephem-wheel-cache-o0c43xp_/wheels/f7/b8/02/d36ec61b874330c5444d50b86a7bc076914293fdc28dd10be8
+Successfully built kaizen-hidden-viper
++ /tmp/hidden-viper-package-check-80i74843/installed/bin/python -m pip install --no-index --no-deps /tmp/hidden-viper-package-check-80i74843/wheels/kaizen_hidden_viper-0.1.3-py3-none-any.whl
+Processing ./wheels/kaizen_hidden_viper-0.1.3-py3-none-any.whl
+Installing collected packages: kaizen-hidden-viper
+Successfully installed kaizen-hidden-viper-0.1.3
++ /tmp/hidden-viper-package-check-80i74843/installed/bin/python -I -c 'import importlib.metadata, json, viper; print(json.dumps({'"'"'metadata'"'"': importlib.metadata.version('"'"'kaizen-hidden-viper'"'"'), '"'"'runtime'"'"': viper.VERSION, '"'"'module'"'"': viper.__file__}))'
+{"metadata": "0.1.3", "runtime": "0.1.3", "module": "/tmp/hidden-viper-package-check-80i74843/installed/lib/python3.12/site-packages/viper.py"}
++ /tmp/hidden-viper-package-check-80i74843/installed/bin/hidden-viper --version
+0.1.3
++ /tmp/hidden-viper-package-check-80i74843/installed/bin/hidden-viper verify /tmp/hidden-viper-package-check-80i74843/claim.json
+{
+  "schema": "hidden-viper.receipt/v1",
+  "hiddenViperVersion": "0.1.3",
+  "observedAtUtc": "2026-10-16T07:37:09.986375+00:00",
+  "claim": {
+    "kind": "file_exists",
+    "target": "/tmp/hidden-viper-package-check-80i74843/existing.txt",
+    "expected": "false"
+  },
+  "status": "UNVERIFIED",
+  "observation": {
+    "error": "ValueError: expected must be a JSON boolean (true or false)"
+  },
+  "receiptSha256": "7410404f429a81a422b4a213a55e57c73ce76e8789d6084d74759e2cedd8cd89"
+}
++ /tmp/hidden-viper-package-check-80i74843/installed/bin/hidden-viper verify /tmp/hidden-viper-package-check-80i74843/claim.json
+{
+  "schema": "hidden-viper.receipt/v1",
+  "hiddenViperVersion": "0.1.3",
+  "observedAtUtc": "2026-10-16T07:37:10.041566+00:00",
+  "claim": {
+    "kind": "file_exists",
+    "target": "/tmp/hidden-viper-package-check-80i74843/existing.txt",
+    "expected": true
+  },
+  "status": "VERIFIED",
+  "observation": {
+    "path": "/tmp/hidden-viper-package-check-80i74843/existing.txt",
+    "exists": true
+  },
+  "receiptSha256": "fdbe90062868fae12114440820c609ad6132185f77028d89af5c28d8724cd9d5"
+}
++ /tmp/hidden-viper-package-check-80i74843/installed/bin/viper --version
+0.1.3
++ /tmp/hidden-viper-package-check-80i74843/installed/bin/viper verify /tmp/hidden-viper-package-check-80i74843/claim.json
+{
+  "schema": "hidden-viper.receipt/v1",
+  "hiddenViperVersion": "0.1.3",
+  "observedAtUtc": "2026-10-16T07:37:10.154026+00:00",
+  "claim": {
+    "kind": "file_exists",
+    "target": "/tmp/hidden-viper-package-check-80i74843/existing.txt",
+    "expected": "false"
+  },
+  "status": "UNVERIFIED",
+  "observation": {
+    "error": "ValueError: expected must be a JSON boolean (true or false)"
+  },
+  "receiptSha256": "115aabdffde2975d27db103cf6deaad61670d5f4f20257fe16cce67add00c588"
+}
++ /tmp/hidden-viper-package-check-80i74843/installed/bin/viper verify /tmp/hidden-viper-package-check-80i74843/claim.json
+{
+  "schema": "hidden-viper.receipt/v1",
+  "hiddenViperVersion": "0.1.3",
+  "observedAtUtc": "2026-10-16T07:37:10.201781+00:00",
+  "claim": {
+    "kind": "file_exists",
+    "target": "/tmp/hidden-viper-package-check-80i74843/existing.txt",
+    "expected": true
+  },
+  "status": "VERIFIED",
+  "observation": {
+    "path": "/tmp/hidden-viper-package-check-80i74843/existing.txt",
+    "exists": true
+  },
+  "receiptSha256": "0a2b705cb5eecc1ea6325f143767ade0c7788fd104d3f24cf976f1580b01b4e4"
+}
+PASS: installed 0.1.3 metadata, runtime, both aliases and boolean regression.

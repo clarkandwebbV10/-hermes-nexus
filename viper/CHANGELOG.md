@@ -1,5 +1,14 @@
 # Changelog
 
+## Unreleased
+- require JSON boolean expectations for file-existence and TCP checks; malformed
+  expectations produce UNVERIFIED before observation instead of truthiness coercion
+- constrain boolean expectations in the claim schema and document compatibility
+- return UNVERIFIED receipts for malformed claim envelopes in the direct API and CLI
+- align package metadata and README with the existing 0.1.3 source version
+- add regression coverage for boolean validation, receipts, CLI/JSONL, and versions
+- preserve historical release manifests and signatures; no new release is published
+
 ## 0.1.3 - 2026-10-08
 - added provider-agnostic JSONL stdin adapter
 - added deterministic stream exit semantics
