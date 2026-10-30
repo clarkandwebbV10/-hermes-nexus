@@ -1,5 +1,21 @@
 # Changelog
 
+## Unreleased
+- require JSON boolean expectations for file-existence and TCP checks; malformed
+  expectations produce UNVERIFIED before observation instead of truthiness coercion
+- constrain boolean expectations in the claim schema and document compatibility
+- return UNVERIFIED receipts for malformed claim envelopes in the direct API and CLI
+- align package metadata and README with the existing 0.1.3 source version
+- add regression coverage for boolean validation, receipts, CLI/JSONL, and versions
+- preserve historical release manifests and signatures; no new release is published
+- scope the patch harness's whitespace gate to every change since the public baseline
+  (committed, staged, unstaged and untracked), with an added-line scan that repository
+  `core.whitespace` settings and `.gitattributes` cannot relax; a bare `git diff --check`
+  passed vacuously once the patch was committed (PR #3 review, P2)
+- harden that gate after an independent review: force text diffs so `-diff` attributes
+  cannot hide lines, follow renames, count new blank lines at EOF, apply exclusions to
+  tracked files, never follow symbolic links, and flag a final bare carriage return
+
 ## 0.1.3 - 2026-10-08
 - added provider-agnostic JSONL stdin adapter
 - added deterministic stream exit semantics
