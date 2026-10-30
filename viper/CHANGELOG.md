@@ -8,6 +8,10 @@
 - align package metadata and README with the existing 0.1.3 source version
 - add regression coverage for boolean validation, receipts, CLI/JSONL, and versions
 - preserve historical release manifests and signatures; no new release is published
+- scope the patch harness's whitespace gate to every change since the public baseline
+  (committed, staged, unstaged and untracked), with an added-line scan that repository
+  `core.whitespace` settings and `.gitattributes` cannot relax; a bare `git diff --check`
+  passed vacuously once the patch was committed (PR #3 review, P2)
 
 ## 0.1.3 - 2026-10-08
 - added provider-agnostic JSONL stdin adapter
