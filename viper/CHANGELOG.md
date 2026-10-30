@@ -12,6 +12,9 @@
   (committed, staged, unstaged and untracked), with an added-line scan that repository
   `core.whitespace` settings and `.gitattributes` cannot relax; a bare `git diff --check`
   passed vacuously once the patch was committed (PR #3 review, P2)
+- harden that gate after an independent review: force text diffs so `-diff` attributes
+  cannot hide lines, follow renames, count new blank lines at EOF, apply exclusions to
+  tracked files, never follow symbolic links, and flag a final bare carriage return
 
 ## 0.1.3 - 2026-10-08
 - added provider-agnostic JSONL stdin adapter

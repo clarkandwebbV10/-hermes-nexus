@@ -9,6 +9,7 @@ import argparse
 import datetime as dt
 import hashlib
 import json
+import os
 from pathlib import Path
 import shutil
 import subprocess
@@ -36,7 +37,7 @@ def git(*args: str) -> str:
 
 
 def whitespace_command(base: str, scope: str = CHECK_SCOPE) -> list[str]:
-    return ["git", "-c", f"core.whitespace={WHITESPACE_RULES}", "diff", "--check", "--no-ext-diff", base, "--", scope]
+    return ["git", "-c", f"core.whitespace={WHITESPACE_RULES}", "diff", "--check", "-M", "--no-ext-diff", base, "--", scope]
 
 
 def _git_bytes(repo: Path, *args: str) -> bytes:
@@ -55,17 +56,25 @@ def _line_problem(line: str) -> str | None:
     return None
 
 
-def _first_trailing_blank_line(text: str) -> int | None:
-    """1-based number of the first blank line at the end of `text`, if any."""
-    lines = text.split("\n")
+def _lines_and_trailing_blanks(text: str) -> tuple[int, int]:
+    """Number of lines in `text` and how many of them are blank lines at the end."""
+    lines = text.replace("\r\n", "\n").split("\n")
     if lines and lines[-1] == "":
         lines.pop()
-    first = None
-    for index in range(len(lines) - 1, -1, -1):
-        if lines[index].strip(_TRAILING):
+    blanks = 0
+    for line in reversed(lines):
+        if line.strip(_TRAILING):
             break
-        first = index + 1
-    return first
+        blanks += 1
+    return len(lines), blanks
+
+
+def _regular_text(path: Path) -> str | None:
+    """Text of a regular, non-binary file; None for symlinks, missing or binary files."""
+    if path.is_symlink() or not path.is_file():
+        return None
+    data = path.read_bytes()
+    return None if b"\0" in data[:8000] else data.decode("utf-8", errors="replace")
 
 
 def whitespace_problems(repo: Path, base: str, scope: str = CHECK_SCOPE, exclude=()) -> list[str]:
@@ -75,12 +84,25 @@ def whitespace_problems(repo: Path, base: str, scope: str = CHECK_SCOPE, exclude
     patch that is already committed or staged passes vacuously. This covers
     committed, staged, unstaged and untracked (not ignored) files relative to the
     baseline commit. git's own check runs with explicit rules; an independent scan
-    of the added lines catches `.gitattributes` overrides (`-whitespace`) that
-    git's check obeys, and untracked files, which `git diff` never sees.
+    of the added lines, forced to text, catches `.gitattributes` overrides
+    (`-whitespace`, `-diff`) and untracked files, which `git diff` never sees.
+    Renames are followed, so moving a file does not count its old lines as new.
+    Symbolic links are not followed. Paths under `exclude` are skipped.
+    Known limit: a file moved without `git mv` and not yet added is untracked, so
+    all of its lines count as new.
     """
     repo = Path(repo)
-    excluded = [Path(path).resolve() for path in exclude]
+    roots = [Path(os.path.abspath(path)) for path in exclude]
+
+    def excluded(path: str) -> bool:
+        absolute = Path(os.path.abspath(repo / path))
+        return any(absolute == root or root in absolute.parents for root in roots)
+
     found: dict[tuple[str, int, str], None] = {}
+
+    def add(path: str, number: int, message: str) -> None:
+        if not excluded(path):
+            found[(path, number, message)] = None
 
     check = subprocess.run(whitespace_command(base, scope), cwd=repo, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False)
     if check.returncode not in (0, 2):
@@ -89,13 +111,26 @@ def whitespace_problems(repo: Path, base: str, scope: str = CHECK_SCOPE, exclude
         path, sep, rest = raw.partition(":")
         number, sep2, message = rest.partition(": ")
         if sep and sep2 and number.isdigit():
-            found[(path, int(number), message.rstrip("."))] = None
+            add(path, int(number), message.rstrip("."))
 
-    changed = _git_bytes(repo, "diff", "--name-only", "-z", "--no-renames", base, "--", scope)
-    for path in filter(None, changed.decode("utf-8", errors="surrogateescape").split("\0")):
-        if not (repo / path).is_file():
-            continue  # deleted since the baseline
-        diff = _git_bytes(repo, "diff", "-U0", "--no-color", "--no-ext-diff", "--no-renames", base, "--", path)
+    status = _git_bytes(repo, "diff", "--name-status", "-z", "-M", "--no-ext-diff", base, "--", scope)
+    fields = status.decode("utf-8", errors="surrogateescape").split("\0")
+    index = 0
+    while index < len(fields) and fields[index]:
+        code = fields[index]
+        if code[0] in "RC":
+            old, path = fields[index + 1], fields[index + 2]
+            index += 3
+        else:
+            old = path = fields[index + 1]
+            index += 2
+        if code[0] == "D" or excluded(path):
+            continue
+        current = _regular_text(repo / path)
+        if current is None:
+            continue
+        pathspec = [old, path] if old != path else [path]
+        diff = _git_bytes(repo, "diff", "-U0", "-a", "-M", "--no-color", "--no-ext-diff", "--no-textconv", base, "--", *pathspec)
         new_line, in_hunk = 0, False
         for line in diff.decode("utf-8", errors="replace").split("\n"):
             if line.startswith("@@"):
@@ -103,33 +138,36 @@ def whitespace_problems(repo: Path, base: str, scope: str = CHECK_SCOPE, exclude
             elif in_hunk and line.startswith("+"):
                 problem = _line_problem(line[1:])
                 if problem:
-                    found[(path, new_line, problem)] = None
+                    add(path, new_line, problem)
                 new_line += 1
-        current = (repo / path).read_bytes()
-        if b"\0" not in current[:8000]:
-            blank = _first_trailing_blank_line(current.decode("utf-8", errors="replace"))
-            in_base = subprocess.run(["git", "cat-file", "-e", f"{base}:{path}"], cwd=repo, capture_output=True).returncode == 0
-            base_blank = in_base and _first_trailing_blank_line(_git_bytes(repo, "show", f"{base}:{path}").decode("utf-8", errors="replace"))
-            if blank and not base_blank:
-                found[(path, blank, "new blank line at EOF")] = None
+        count, blanks = _lines_and_trailing_blanks(current)
+        in_base = subprocess.run(["git", "cat-file", "-e", f"{base}:{old}"], cwd=repo, capture_output=True).returncode == 0
+        base_blanks = _lines_and_trailing_blanks(_git_bytes(repo, "show", f"{base}:{old}").decode("utf-8", errors="replace"))[1] if in_base else 0
+        if blanks > base_blanks:
+            add(path, count - blanks + base_blanks + 1, "new blank line at EOF")
 
     untracked = _git_bytes(repo, "ls-files", "--others", "--exclude-standard", "-z", "--", scope)
     for path in filter(None, untracked.decode("utf-8", errors="surrogateescape").split("\0")):
-        absolute = (repo / path).resolve()
-        if any(absolute == root or root in absolute.parents for root in excluded):
+        if excluded(path):
             continue
-        data = absolute.read_bytes()
-        if b"\0" in data[:8000]:
-            continue  # binary
-        text = data.decode("utf-8", errors="replace")
-        for number, line in enumerate(text.split("\n")[: text.count("\n") + (0 if text.endswith("\n") else 1)], start=1):
-            # Not yet added, so git's CRLF normalization has not run: accept CRLF endings.
-            problem = _line_problem(line[:-1] if line.endswith("\r") else line)
+        text = _regular_text(repo / path)
+        if text is None:
+            continue
+        pieces = text.split("\n")
+        terminated = text.count("\n")
+        for number, line in enumerate(pieces, start=1):
+            if number > terminated and line == "":
+                break
+            # Not yet added, so git's CRLF normalization has not run: a CR before LF
+            # is a line ending; a final CR with no LF after it is trailing whitespace.
+            if number <= terminated and line.endswith("\r"):
+                line = line[:-1]
+            problem = _line_problem(line)
             if problem:
-                found[(path, number, problem)] = None
-        blank = _first_trailing_blank_line(text.replace("\r\n", "\n"))
-        if blank:
-            found[(path, blank, "new blank line at EOF")] = None
+                add(path, number, problem)
+        count, blanks = _lines_and_trailing_blanks(text)
+        if blanks:
+            add(path, count - blanks + 1, "new blank line at EOF")
 
     return [f"{path}:{number}: {message}" for path, number, message in sorted(found)]
 
