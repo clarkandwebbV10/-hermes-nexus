@@ -169,20 +169,21 @@ def stream_verify(lines: Iterable[str]) -> tuple[list[dict], int]:
 
 
 def run_demo() -> int:
-    demo = Path("hidden-viper-demo-output.txt")
-    demo.write_text("deployment-state=ready\n", encoding="utf-8")
-    claims = [
-        {"id": "demo-file", "kind": "file_exists", "target": str(demo), "expected": True},
-        {"id": "demo-content", "kind": "file_contains", "target": str(demo), "expected": "deployment-state=ready"},
-        {"id": "demo-contradiction", "kind": "file_exists", "target": "definitely-not-created.txt", "expected": True},
-    ]
-    receipts = [verify(claim) for claim in claims]
-    print(json.dumps(receipts, indent=2))
-    try:
-        demo.unlink()
-    except OSError:
-        pass
-    return 0 if [r["status"] for r in receipts] == ["VERIFIED", "VERIFIED", "CONTRADICTED"] else 2
+    # Never overwrite or remove files in the caller's working directory.
+    import tempfile
+
+    with tempfile.TemporaryDirectory(prefix="hidden-viper-demo-") as directory:
+        demo = Path(directory) / "output.txt"
+        missing = Path(directory) / "not-created.txt"
+        demo.write_text("deployment-state=ready\n", encoding="utf-8")
+        claims = [
+            {"id": "demo-file", "kind": "file_exists", "target": str(demo), "expected": True},
+            {"id": "demo-content", "kind": "file_contains", "target": str(demo), "expected": "deployment-state=ready"},
+            {"id": "demo-contradiction", "kind": "file_exists", "target": str(missing), "expected": True},
+        ]
+        receipts = [verify(claim) for claim in claims]
+        print(json.dumps(receipts, indent=2))
+        return 0 if [r["status"] for r in receipts] == ["VERIFIED", "VERIFIED", "CONTRADICTED"] else 2
 
 
 def main() -> None:
