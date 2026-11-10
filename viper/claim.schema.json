@@ -34,5 +34,25 @@
       "type": "string"
     }
   },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "enum": ["file_exists", "tcp_listen"]
+          }
+        },
+        "required": ["kind"]
+      },
+      "then": {
+        "properties": {
+          "expected": {
+            "type": "boolean",
+            "default": true
+          }
+        }
+      }
+    }
+  ],
   "additionalProperties": true
 }

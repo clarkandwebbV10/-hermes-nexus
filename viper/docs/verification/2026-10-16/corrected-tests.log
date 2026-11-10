@@ -1,0 +1,32 @@
+test_direct_file_check_rejects_invalid_expected_before_observation (test_boolean_expectations.BooleanExpectationTests.test_direct_file_check_rejects_invalid_expected_before_observation) ... ok
+test_direct_tcp_check_rejects_invalid_expected_before_connection (test_boolean_expectations.BooleanExpectationTests.test_direct_tcp_check_rejects_invalid_expected_before_connection) ... ok
+test_file_exists_preserves_boolean_truth_table_and_default (test_boolean_expectations.BooleanExpectationTests.test_file_exists_preserves_boolean_truth_table_and_default) ... ok
+test_file_exists_rejects_non_booleans_in_both_states (test_boolean_expectations.BooleanExpectationTests.test_file_exists_rejects_non_booleans_in_both_states) ... ok
+test_file_exists_rejects_string_false_for_existing_file (test_boolean_expectations.BooleanExpectationTests.test_file_exists_rejects_string_false_for_existing_file) ... ok
+test_stream_cli_rejects_string_false_and_continues (test_boolean_expectations.BooleanExpectationTests.test_stream_cli_rejects_string_false_and_continues) ... ok
+test_stream_preserves_invalid_claim_and_exit_precedence (test_boolean_expectations.BooleanExpectationTests.test_stream_preserves_invalid_claim_and_exit_precedence) ... ok
+test_tcp_listen_preserves_boolean_truth_table_and_default (test_boolean_expectations.BooleanExpectationTests.test_tcp_listen_preserves_boolean_truth_table_and_default) ... ok
+test_tcp_listen_rejects_non_booleans_in_both_states (test_boolean_expectations.BooleanExpectationTests.test_tcp_listen_rejects_non_booleans_in_both_states) ... ok
+test_tcp_listen_rejects_string_false_for_open_port (test_boolean_expectations.BooleanExpectationTests.test_tcp_listen_rejects_string_false_for_open_port) ... ok
+test_verify_cli_rejects_string_false (test_boolean_expectations.BooleanExpectationTests.test_verify_cli_rejects_string_false) ... ok
+test_non_object_claims_are_unverified (test_claim_validation.ClaimValidationTests.test_non_object_claims_are_unverified) ... ok
+test_non_string_kinds_are_unverified (test_claim_validation.ClaimValidationTests.test_non_string_kinds_are_unverified) ... ok
+test_stream_continues_after_invalid_kind (test_claim_validation.ClaimValidationTests.test_stream_continues_after_invalid_kind) ... ok
+test_verify_cli_emits_receipt_for_malformed_envelopes (test_claim_validation.ClaimValidationTests.test_verify_cli_emits_receipt_for_malformed_envelopes) ... ok
+test_package_metadata_matches_runtime (test_version.HiddenViperVersionTests.test_package_metadata_matches_runtime) ... ok
+test_readme_advertised_version_matches_runtime (test_version.HiddenViperVersionTests.test_readme_advertised_version_matches_runtime) ... ok
+test_receipt_version_matches_runtime (test_version.HiddenViperVersionTests.test_receipt_version_matches_runtime) ... ok
+test_source_cli_version_matches_runtime (test_version.HiddenViperVersionTests.test_source_cli_version_matches_runtime) ... ok
+test_file_contains_verified (test_viper.HiddenViperTests.test_file_contains_verified) ... ok
+test_file_exists_verified (test_viper.HiddenViperTests.test_file_exists_verified) ... ok
+test_jsonl_stream_marks_bad_json_unverified (test_viper.HiddenViperTests.test_jsonl_stream_marks_bad_json_unverified) ... ok
+test_jsonl_stream_preserves_contradiction (test_viper.HiddenViperTests.test_jsonl_stream_preserves_contradiction) ... ok
+test_missing_file_contradicted (test_viper.HiddenViperTests.test_missing_file_contradicted) ... ok
+test_sha256 (test_viper.HiddenViperTests.test_sha256) ... ok
+test_tcp_listen_verified (test_viper.HiddenViperTests.test_tcp_listen_verified) ... ok
+test_unsupported_is_unverified (test_viper.HiddenViperTests.test_unsupported_is_unverified) ... ok
+
+----------------------------------------------------------------------
+Ran 27 tests in 0.307s
+
+OK

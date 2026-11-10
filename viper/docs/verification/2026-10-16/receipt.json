@@ -1,0 +1,103 @@
+{
+  "schema": "hidden-viper.patch-verification/v1",
+  "observedAtUtc": "2026-10-16T07:37:10.238773+00:00",
+  "baselineCommit": "b186ce7bbdcaf15223271b2ceefb39fe7fc19c40",
+  "checkoutHeadAtRun": "b186ce7bbdcaf15223271b2ceefb39fe7fc19c40",
+  "branch": "fix/viper-boolean-validation-20261016",
+  "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+  "sourceSha256": {
+    "viper/viper.py": "0cd176d6f6376a2896441963502f47c83171ae555100493b49dc0f58b73ec41f",
+    "viper/claim.schema.json": "50ed718124b88eb49e46d8356d13e328afa93651047d17d32572c236de416db0",
+    "viper/pyproject.toml": "397825a017f276b97e6edbb5f49a0ca7bbf94d589d923f9a0433dadc4bf2badd",
+    "viper/README.md": "96bd4d4e77b9ca3dad013d6ed952d5878a04f79a3ea56bbf03cda1202de4a99b",
+    "viper/CHANGELOG.md": "4f1e2ac2e69cce58e2be000cd85cab02c3052997af4f58403104865991d300a4",
+    "viper/tests/test_boolean_expectations.py": "935a77a46e4ab85ac3f99e01762259dcb171629c08e5f13b5ec4c276b65cda37",
+    "viper/tests/test_claim_validation.py": "5ffcfd03250cdaa957886f9e2025a4413e2736a40833663d1ded12e00263d61b",
+    "viper/tests/test_version.py": "7f0762ae9fa3cfd2fa5f27a27911ac648efbaef0013d7f82815f16318bbb4590",
+    "viper/tests/test_viper.py": "684d163d9844937451a01659923874b2b7660320db0cc3caeb1fac7a53aa462f",
+    "viper/tools/build_patch_inspector.py": "28cb1122cfda2d946e1b33e83e2804867d1913fa0ad157d1df43c1bca5ffebaf",
+    "viper/tools/check_package.py": "370ea17973d82f6b5b7acb8206a0f033d3b1d2539a2bd851533156a154dc7646",
+    "viper/tools/verify_boolean_patch.py": "99f0bf5bb13f2fb20a5d98d09e1205d39120be228638674abcf3c713532ffee4"
+  },
+  "results": [
+    {
+      "name": "baseline-tests",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "viper/tests",
+        "-v"
+      ],
+      "cwd": "/tmp/hidden-viper-public-baseline-vugaidqq",
+      "returncode": 0,
+      "expectedReturncode": 0,
+      "outputLog": "baseline-tests.log",
+      "outputSha256": "5400316b1113eda16013827a05d008e9946055fbcd3571355cabdf321df3fa4c"
+    },
+    {
+      "name": "baseline-regressions",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "-m",
+        "unittest",
+        "-v",
+        "test_boolean_expectations.BooleanExpectationTests.test_file_exists_rejects_string_false_for_existing_file",
+        "test_boolean_expectations.BooleanExpectationTests.test_tcp_listen_rejects_string_false_for_open_port",
+        "test_version.HiddenViperVersionTests.test_package_metadata_matches_runtime",
+        "test_version.HiddenViperVersionTests.test_readme_advertised_version_matches_runtime"
+      ],
+      "cwd": "/tmp/hidden-viper-public-baseline-vugaidqq/viper/tests",
+      "returncode": 1,
+      "expectedReturncode": 1,
+      "outputLog": "baseline-regressions.log",
+      "outputSha256": "20c278d773e1218b848e6deee02f3b1977d64a04354c2596f56b9904724f8801"
+    },
+    {
+      "name": "corrected-tests",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "viper/tests",
+        "-v"
+      ],
+      "cwd": "/workspace/scratch/ec12b6bddf79/hidden-viper",
+      "returncode": 0,
+      "expectedReturncode": 0,
+      "outputLog": "corrected-tests.log",
+      "outputSha256": "59771023ec0ed132f41853de2de3a49a900cf8c422f77764366eadf82da43554"
+    },
+    {
+      "name": "diff-check",
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "cwd": "/workspace/scratch/ec12b6bddf79/hidden-viper",
+      "returncode": 0,
+      "expectedReturncode": 0,
+      "outputLog": "diff-check.log",
+      "outputSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "package-smoke",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "/workspace/scratch/ec12b6bddf79/hidden-viper/viper/tools/check_package.py"
+      ],
+      "cwd": "/workspace/scratch/ec12b6bddf79/hidden-viper",
+      "returncode": 0,
+      "expectedReturncode": 0,
+      "outputLog": "package-smoke.log",
+      "outputSha256": "b20421ffa33bcc80eb3d31d3d5108fd642739b76a4116fe21853c1748c75f987"
+    }
+  ],
+  "scope": "Local executable Python verification and optional packaging smoke; no release publication, signing, or claim of Lean-to-Python equivalence.",
+  "receiptSha256": "f901151180c6d1233335ba5aedea4dcd11e7fd3e781798dbf4c2787bc8545fba"
+}

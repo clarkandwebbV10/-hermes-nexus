@@ -45,6 +45,18 @@ Supported MVP checks:
 
 The claim envelope is described in `claim.schema.json`.
 
+For `file_exists` and `tcp_listen`, `expected` must be a JSON boolean
+(`true` or `false`). Omitting it defaults to `true`. Strings such as `"false"`,
+numbers, `null`, arrays, and objects produce an **UNVERIFIED** receipt with a
+validation error, before the filesystem or network is probed. For example,
+`{"kind":"file_exists","target":"retired.txt","expected":false}` checks
+that a file is absent. Producers relying on truthiness coercion must send
+native JSON booleans instead.
+
+Invalid claim objects and unsupported claim kinds also produce **UNVERIFIED**
+receipts. The `verify` command exits `1` for any non-verified receipt; JSONL
+`stream` exits `2` if any input is unverified, ahead of contradiction exit `1`.
+
 Hidden Viper deliberately does **not** execute arbitrary shell commands in this public MVP.
 
 ## Design rule
@@ -60,7 +72,7 @@ The `formal/` directory uses Lean 4 to prove invariants about the verification m
 ## Current proof
 
 - deterministic local verifier
-- 6 local unit tests passing
+- local unit tests: `python -m unittest discover -s tests -v`
 - public demo receipts including a deliberately contradicted completion claim
 - Ed25519-signed release and portfolio commitments
 - Python CI configured for 3.11, 3.12, and 3.13
@@ -76,7 +88,7 @@ The signature proves integrity and possession of the committed bytes. It is not,
 
 ## Status
 
-**0.1.2 developer preview.**
+**0.1.3 developer preview.**
 
 The deeper private R&D layers are not published here. This repository intentionally exposes enough to test the product thesis without dumping the private research corpus.
 

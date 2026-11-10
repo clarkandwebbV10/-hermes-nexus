@@ -31,10 +31,18 @@ def canonical_hash(obj: object) -> str:
     return hashlib.sha256(raw).hexdigest()
 
 
+def boolean_expectation(claim: dict) -> bool:
+    """Accept JSON booleans only; omission retains the default expectation."""
+    expected = claim.get("expected", True)
+    if not isinstance(expected, bool):
+        raise ValueError("expected must be a JSON boolean (true or false)")
+    return expected
+
+
 def check_file_exists(claim: dict) -> tuple[bool, dict]:
+    expected = boolean_expectation(claim)
     path = Path(claim["target"]).expanduser()
     actual = path.exists()
-    expected = bool(claim.get("expected", True))
     return actual == expected, {"path": str(path.resolve()) if path.exists() else str(path), "exists": actual}
 
 
@@ -58,6 +66,7 @@ def check_file_contains(claim: dict) -> tuple[bool, dict]:
 
 
 def check_tcp_listen(claim: dict) -> tuple[bool, dict]:
+    expected = boolean_expectation(claim)
     host = claim.get("host", "127.0.0.1")
     port = int(claim["target"])
     timeout = float(claim.get("timeoutSeconds", 1.0))
@@ -68,7 +77,6 @@ def check_tcp_listen(claim: dict) -> tuple[bool, dict]:
     finally:
         sock.close()
     listening = code == 0
-    expected = bool(claim.get("expected", True))
     return listening == expected, {"host": host, "port": port, "listening": listening}
 
 
@@ -95,18 +103,20 @@ CHECKS = {
 
 def verify(claim: dict) -> dict:
     receipt = {"schema": "hidden-viper.receipt/v1", "hiddenViperVersion": VERSION, "observedAtUtc": utc_now(), "claim": claim}
-    kind = claim.get("kind")
-    if kind not in CHECKS:
-        receipt["status"] = "UNVERIFIED"
-        receipt["observation"] = {"error": f"unsupported claim kind: {kind!r}"}
-    else:
-        try:
+    try:
+        if not isinstance(claim, dict):
+            raise ValueError("claim must be a JSON object")
+        kind = claim.get("kind")
+        if not isinstance(kind, str) or kind not in CHECKS:
+            receipt["status"] = "UNVERIFIED"
+            receipt["observation"] = {"error": f"unsupported claim kind: {kind!r}"}
+        else:
             ok, observation = CHECKS[kind](claim)
             receipt["status"] = "VERIFIED" if ok else "CONTRADICTED"
             receipt["observation"] = observation
-        except Exception as exc:
-            receipt["status"] = "UNVERIFIED"
-            receipt["observation"] = {"error": f"{type(exc).__name__}: {exc}"}
+    except Exception as exc:
+        receipt["status"] = "UNVERIFIED"
+        receipt["observation"] = {"error": f"{type(exc).__name__}: {exc}"}
     receipt["receiptSha256"] = canonical_hash(receipt)
     return receipt
 
