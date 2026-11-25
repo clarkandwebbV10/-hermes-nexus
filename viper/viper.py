@@ -198,7 +198,19 @@ def main() -> None:
     stream_parser = sub.add_parser("stream", help="verify newline-delimited JSON claims from stdin")
     stream_parser.add_argument("--out", help="optional JSONL receipt output file")
 
+    events_parser = sub.add_parser("events", help="verify JSONL events against an operator-provided artifact manifest")
+    events_parser.add_argument("--manifest", required=True)
+
     args = parser.parse_args()
+
+    if args.cmd == "events":
+        from viper_events import verify_events
+
+        try:
+            code = verify_events(sys.stdin.buffer, sys.stdout, args.manifest)
+        except (OSError, ValueError, RecursionError) as error:
+            events_parser.exit(2, f"invalid verification manifest: {error}\n")
+        raise SystemExit(code)
 
     if args.cmd == "demo":
         raise SystemExit(run_demo())
