@@ -120,6 +120,7 @@ def verify_events(stream, output, manifest_path):
         receipt["provenance"] = provenance
         receipt["receiptSha256"] = canonical_hash(receipt)
         output.write(json.dumps(receipt, ensure_ascii=True, separators=(",", ":")) + "\n")
+        output.flush()
         exit_code = max(exit_code, {"VERIFIED": 0, "CONTRADICTED": 1, "UNVERIFIED": 2}[receipt["status"]])
     return exit_code if count else 2
 

@@ -2,9 +2,11 @@ import hashlib
 import io
 import json
 from pathlib import Path
+from queue import Empty, Queue
 import subprocess
 import sys
 import tempfile
+from threading import Thread
 import unittest
 
 PROJECT = Path(__file__).resolve().parents[1]
@@ -85,4 +87,54 @@ class EventStreamTests(unittest.TestCase):
                              input=self.event(), capture_output=True, cwd=self.root, check=False)
         self.assertEqual(run.returncode, 0, run.stderr)
         self.assertEqual(json.loads(run.stdout)["status"], "VERIFIED")
+
+    def test_cli_flushes_each_receipt_before_stdin_closes(self):
+        # Ignore PYTHONUNBUFFERED so the child uses normal pipe buffering.
+        command = [sys.executable, "-E", str(PROJECT/"viper.py"), "events",
+                   "--manifest", str(self.manifest)]
+        with subprocess.Popen(command, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+                              stderr=subprocess.PIPE, cwd=self.root) as proc:
+            receipts = Queue()
+
+            def read_receipts():
+                try:
+                    for line in proc.stdout:
+                        receipts.put(line)
+                finally:
+                    receipts.put(None)
+
+            reader = Thread(target=read_receipts, daemon=True)
+            reader.start()
+            try:
+                for index, status in enumerate(("VERIFIED", "CONTRADICTED", "UNVERIFIED"), 1):
+                    if index == 2:
+                        self.artifact.write_text("changed by test", encoding="utf-8")
+                    raw = self.event(id=f"event-{index}", claim="missing" if index == 3 else "checked")
+                    proc.stdin.write(raw)
+                    proc.stdin.flush()
+                    try:
+                        line = receipts.get(timeout=5)
+                    except Empty:
+                        self.fail(f"no receipt for event {index} while stdin remained open")
+                    self.assertIsNotNone(line, "stdout closed before receipt arrived")
+                    self.assertTrue(line.endswith(b"\n"))
+                    self.assertFalse(proc.stdin.closed)
+                    self.assertIsNone(proc.poll(), "child exited before stdin closed")
+                    receipt = json.loads(line)
+                    self.assertEqual(receipt["status"], status)
+                    self.assertEqual(receipt["provenance"]["id"], f"event-{index}")
+                    self.assertEqual(receipt["provenance"]["line"], index)
+                    self.assertEqual(receipt["provenance"]["inputSha256"], hashlib.sha256(raw).hexdigest())
+                    self.assertEqual(receipt["provenance"]["manifestSha256"], viper.sha256_file(self.manifest))
+                    digest = receipt.pop("receiptSha256")
+                    self.assertEqual(digest, viper.canonical_hash(receipt))
+                proc.stdin.close()
+                self.assertEqual(proc.wait(timeout=5), 2)
+                self.assertEqual(proc.stderr.read(), b"")
+                self.assertIsNone(receipts.get(timeout=5), "unexpected extra receipt")
+            finally:
+                if proc.poll() is None:
+                    proc.kill()
+                proc.wait(timeout=5)
+                reader.join(timeout=5)
 
