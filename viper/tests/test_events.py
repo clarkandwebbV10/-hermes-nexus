@@ -159,7 +159,9 @@ class EventStreamTests(unittest.TestCase):
             try:
                 opened = os.fstat(fd)
                 self.assertEqual(viper.file_identity(before), viper.file_identity(opened),
-                                 f"before={viper.file_identity(before)}, opened={viper.file_identity(opened)}")
+                                 f"path/handle identity mismatch: {viper.file_identity(before)} vs {viper.file_identity(opened)}")
+                self.assertEqual(viper.file_state(before), viper.file_state(viper.checked_stat(artifact)))
+                self.assertEqual(viper.file_state(opened), viper.file_state(os.fstat(fd)))
             finally:
                 os.close(fd)
 
