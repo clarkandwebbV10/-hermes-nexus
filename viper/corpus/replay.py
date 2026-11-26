@@ -52,7 +52,7 @@ def replay(record):
                      "expected":"integration outcome = " + summaries[0] + "\n"}}
         (root/"checks.json").write_text(json.dumps(manifest), encoding="utf-8")
         if observed:
-            (root/"observation.txt").write_text("integration outcome = " + observed + "\n", encoding="utf-8")
+            (root/"observation.txt").write_bytes(("integration outcome = " + observed + "\n").encode("utf-8"))
         out = io.StringIO()
         verify_events(io.BytesIO((json.dumps(event) + "\n").encode()), out, root/"checks.json")
         return json.loads(out.getvalue())
