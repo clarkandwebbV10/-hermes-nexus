@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import datetime as dt
+import errno
 import hashlib
 import json
 import socket
@@ -76,8 +77,14 @@ def check_tcp_listen(claim: dict) -> tuple[bool, dict]:
         code = sock.connect_ex((host, port))
     finally:
         sock.close()
+    # Only a successful connection or explicit refusal gives an observed result.
+    # A timeout, unreachable network, or other error cannot establish absence.
+    refused = {errno.ECONNREFUSED, getattr(errno, "WSAECONNREFUSED", errno.ECONNREFUSED)}
+    if code != 0 and code not in refused:
+        raise OSError(code, "TCP connection outcome inconclusive")
     listening = code == 0
-    return listening == expected, {"host": host, "port": port, "listening": listening}
+    return listening == expected, {"host": host, "port": port, "listening": listening,
+                                   "connectionResult": "connected" if listening else "refused"}
 
 
 def check_http_status(claim: dict) -> tuple[bool, dict]:
