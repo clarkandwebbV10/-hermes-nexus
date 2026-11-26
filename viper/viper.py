@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import argparse
 import datetime as dt
-import hashlib
 import errno
+import hashlib
 import ipaddress
 import tempfile
 import json
@@ -189,8 +189,14 @@ def check_tcp_listen(claim: dict) -> tuple[bool, dict]:
         code = sock.connect_ex((host, port))
     finally:
         sock.close()
+    # Only a successful connection, or an explicit refusal from a loopback
+    # address (where the probe and the target share a vantage point), is an
+    # observation. Timeouts, unreachable networks, permission errors, Windows
+    # would-block results, and refusals from remote hosts (which a firewall or
+    # middlebox can forge) cannot establish that no listener exists.
     if code == 0:
         return expected is True, {"host": host, "port": port, "listening": True,
+                                  "connectionResult": "connected",
                                   "observation": "connection accepted from probe"}
     try:
         loopback = ipaddress.ip_address(host).is_loopback
@@ -199,6 +205,7 @@ def check_tcp_listen(claim: dict) -> tuple[bool, dict]:
     refused = {errno.ECONNREFUSED, getattr(errno, "WSAECONNREFUSED", 10061)}
     if loopback and code in refused:
         return expected is False, {"host": host, "port": port, "listening": False,
+                                   "connectionResult": "refused",
                                    "observation": "loopback connection refused at probe time"}
     raise OSError(code, "TCP observation inconclusive; absence of a connection does not establish absence of a listener")
 

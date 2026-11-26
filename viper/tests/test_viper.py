@@ -1,8 +1,10 @@
+import errno
 import hashlib
 import json
 import socket
 import tempfile
 import unittest
+from unittest.mock import patch
 import sys
 from pathlib import Path
 
@@ -49,6 +51,27 @@ class HiddenViperTests(unittest.TestCase):
             self.assertEqual(receipt["status"], "VERIFIED")
         finally:
             sock.close()
+
+    def test_tcp_inconclusive_is_unverified_for_either_expectation(self):
+        for code in (errno.ETIMEDOUT, errno.ENETUNREACH, errno.EHOSTUNREACH, errno.EACCES):
+            for expected in (True, False):
+                with self.subTest(code=code, expected=expected), patch.object(viper.socket, "socket") as factory:
+                    factory.return_value.connect_ex.return_value = code
+                    claim = {"kind": "tcp_listen", "target": 12345, "expected": expected}
+                    receipts, exit_code = viper.stream_verify([json.dumps(claim)])
+                    self.assertEqual(receipts[0]["status"], "UNVERIFIED")
+                    self.assertNotIn("listening", receipts[0]["observation"])
+                    self.assertEqual(exit_code, 2)
+                    factory.return_value.close.assert_called_once()
+
+    def test_tcp_explicit_refusal_preserves_observed_negative(self):
+        for code in {errno.ECONNREFUSED, getattr(errno, "WSAECONNREFUSED", errno.ECONNREFUSED)}:
+            for expected, status in ((False, "VERIFIED"), (True, "CONTRADICTED")):
+                with self.subTest(code=code, expected=expected), patch.object(viper.socket, "socket") as factory:
+                    factory.return_value.connect_ex.return_value = code
+                    receipt = viper.verify({"kind": "tcp_listen", "target": 12345, "expected": expected})
+                    self.assertEqual(receipt["status"], status)
+                    self.assertEqual(receipt["observation"]["connectionResult"], "refused")
 
     def test_unsupported_is_unverified(self):
         receipt = viper.verify({"kind": "unknown", "target": "x"})
