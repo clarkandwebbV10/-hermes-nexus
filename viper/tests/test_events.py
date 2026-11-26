@@ -147,3 +147,19 @@ class EventStreamTests(unittest.TestCase):
             code, rows = self.inspect(self.event())
         self.assertEqual((code, rows[0]["status"]), (0, "VERIFIED"))
 
+    @unittest.skipUnless(sys.platform == "win32", "Windows file-identity probe")
+    def test_windows_handle_identity_matches_path(self):
+        # Disposable fixture: never print a real path or read user data.
+        import os
+        with tempfile.TemporaryDirectory() as td:
+            artifact = Path(td) / "identity-fixture.bin"
+            artifact.write_bytes(b"mc2-identity-fixture")
+            before = viper.checked_stat(artifact)
+            fd = os.open(artifact, os.O_RDONLY | getattr(os, "O_BINARY", 0))
+            try:
+                opened = os.fstat(fd)
+                self.assertEqual(viper.file_identity(before), viper.file_identity(opened),
+                                 f"before={viper.file_identity(before)}, opened={viper.file_identity(opened)}")
+            finally:
+                os.close(fd)
+
