@@ -5,6 +5,11 @@ import re
 import stat
 from pathlib import Path
 
+
+class ManifestError(ValueError):
+    """Manifest load failed before any event was processed."""
+
+
 MAX_LINE = 65536
 MAX_MANIFEST_BYTES = 1048576
 IDENTIFIER = re.compile(r"[A-Za-z0-9][A-Za-z0-9_./:@-]{0,191}\Z")
@@ -110,7 +115,10 @@ def bounded_lines(stream):
 def verify_events(stream, output, manifest_path):
     from viper import VERSION, canonical_hash, utc_now, verify
 
-    root, entries, manifest_digest = load_manifest(manifest_path)
+    try:
+        root, entries, manifest_digest = load_manifest(manifest_path)
+    except (OSError, ValueError, RecursionError) as error:
+        raise ManifestError(str(error)) from error
     exit_code = 0
     count = 0
     for line_no, (raw, digest) in enumerate(bounded_lines(stream), start=1):
