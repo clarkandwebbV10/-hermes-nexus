@@ -303,6 +303,11 @@ def stream_receipt(raw, line_number, input_digest):
 def stream_verify(lines: Iterable[str]) -> tuple[list[dict], int]:
     """Compatibility collector for finite, caller-controlled iterables.
     Use write_stream for incremental bounded CLI input/output.
+
+    Exit codes (shared with write_stream and the CLI):
+      0: at least one claim was parsed and every claim was VERIFIED
+      1: at least one claim was CONTRADICTED and none were UNVERIFIED
+      2: no claims, or at least one line was UNVERIFIED, including malformed JSON
     """
     receipts = []
     code = 0
