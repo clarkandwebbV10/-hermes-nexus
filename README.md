@@ -31,7 +31,7 @@ These are expected results, **not** a live benchmark or a claim that an outside 
 | `file_exists` | Whether a path exists |
 | `file_sha256` | The file's actual SHA-256 digest |
 | `file_contains` | Whether specified text is present |
-| `tcp_listen` | Whether a TCP connection can be established |
+| `tcp_listen` | Whether a TCP connection is accepted. Absence is only reported for an explicit refusal on a loopback address; timeouts, unreachable hosts and remote refusals are **UNVERIFIED** |
 | `http_status` | Whether an HTTP endpoint returns the expected status |
 
 Verdicts are **VERIFIED**, **CONTRADICTED**, or **UNVERIFIED**. Unknown or malformed claims should never be treated as successful work. This initial public verifier deliberately **does not execute arbitrary shell commands**.

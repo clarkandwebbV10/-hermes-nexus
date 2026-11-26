@@ -53,6 +53,14 @@ validation error, before the filesystem or network is probed. For example,
 that a file is absent. Producers relying on truthiness coercion must send
 native JSON booleans instead.
 
+`tcp_listen` reports an accepted connection as `listening: true`. It reports
+`listening: false` only for an explicit refusal from a loopback address, where
+the probe and the target share a vantage point. A timeout, an unreachable
+network, a permission error, or a refusal from a remote host (which a firewall
+or middlebox can produce) is **UNVERIFIED**, because it does not establish that
+no listener exists. Observed outcomes include `connectionResult`
+(`"connected"` or `"refused"`).
+
 Invalid claim objects and unsupported claim kinds also produce **UNVERIFIED**
 receipts. The `verify` command exits `1` for any non-verified receipt; JSONL
 `stream` exits `2` if any input is unverified, ahead of contradiction exit `1`.
