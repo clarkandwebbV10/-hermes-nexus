@@ -8,6 +8,7 @@ import sys
 import tempfile
 from threading import Thread
 import unittest
+from unittest import mock
 
 PROJECT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(PROJECT))
@@ -137,4 +138,12 @@ class EventStreamTests(unittest.TestCase):
                     proc.kill()
                 proc.wait(timeout=5)
                 reader.join(timeout=5)
+
+    def test_regular_file_without_windows_reparse_constant(self):
+        # Recreate Linux's absent stat constant even when CI runs on Windows.
+        import viper_events
+        with mock.patch.dict(viper_events.stat.__dict__):
+            viper_events.stat.__dict__.pop("FILE_ATTRIBUTE_REPARSE_POINT", None)
+            code, rows = self.inspect(self.event())
+        self.assertEqual((code, rows[0]["status"]), (0, "VERIFIED"))
 
