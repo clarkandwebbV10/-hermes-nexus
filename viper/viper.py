@@ -134,51 +134,75 @@ def verify(claim: dict) -> dict:
     return receipt
 
 
+def invalid_stream_receipt(line_number, input_digest, reason):
+    receipt = {
+        "schema": "hidden-viper.receipt/v1",
+        "hiddenViperVersion": VERSION,
+        "observedAtUtc": utc_now(),
+        "claim": None,
+        "status": "UNVERIFIED",
+        "observation": {"error": reason, "lineNumber": line_number,
+                        "inputLineSha256": input_digest},
+    }
+    receipt["receiptSha256"] = canonical_hash(receipt)
+    return receipt
+
+
+def stream_receipt(raw, line_number, input_digest):
+    from viper_events import unique_fields, MAX_LINE
+    if raw is None or len(raw) > MAX_LINE:
+        return invalid_stream_receipt(line_number, input_digest, "claim exceeds 64 KiB")
+    if not raw.strip():
+        return None
+    try:
+        def reject_constant(value):
+            raise ValueError("non-finite JSON constant")
+        claim = json.loads(raw.decode("utf-8"), object_pairs_hook=unique_fields,
+                           parse_constant=reject_constant)
+        if not isinstance(claim, dict):
+            raise ValueError("claim must be a JSON object")
+        # Reject escaped lone surrogates, including in nested strings, before verifying.
+        json.dumps(claim, ensure_ascii=False, allow_nan=False).encode("utf-8")
+        return verify(claim)
+    except (ValueError, UnicodeError, RecursionError):
+        return invalid_stream_receipt(line_number, input_digest, "invalid JSON claim")
+
+
 def stream_verify(lines: Iterable[str]) -> tuple[list[dict], int]:
-    """Verify newline-delimited JSON claims without binding to one agent framework.
-
-    Exit codes:
-      0: every parsed claim was VERIFIED
-      1: at least one claim was CONTRADICTED and none were UNVERIFIED
-      2: no claims, or at least one line was UNVERIFIED, including malformed JSON
+    """Compatibility collector for finite, caller-controlled iterables.
+    Use write_stream for incremental bounded CLI input/output.
     """
-    receipts: list[dict] = []
-    saw_contradicted = False
-    saw_unverified = False
-
-    for line_number, raw_line in enumerate(lines, start=1):
-        line = raw_line.strip()
-        if not line:
-            continue
+    receipts = []
+    code = 0
+    for line_number, line in enumerate(lines, start=1):
         try:
-            claim = json.loads(line)
-            if not isinstance(claim, dict):
-                raise ValueError("claim must be a JSON object")
-            receipt = verify(claim)
-        except Exception as exc:
-            receipt = {
-                "schema": "hidden-viper.receipt/v1",
-                "hiddenViperVersion": VERSION,
-                "observedAtUtc": utc_now(),
-                "claim": None,
-                "status": "UNVERIFIED",
-                "observation": {
-                    "error": f"{type(exc).__name__}: {exc}",
-                    "lineNumber": line_number,
-                    "inputLineSha256": hashlib.sha256(line.encode()).hexdigest(),
-                },
-            }
-            receipt["receiptSha256"] = canonical_hash(receipt)
+            raw = line.encode("utf-8")
+        except UnicodeError:
+            raw = line.encode("utf-8", errors="surrogatepass")
+        receipt = stream_receipt(raw, line_number, hashlib.sha256(raw).hexdigest())
+        if receipt is not None:
+            receipts.append(receipt)
+            code = max(code, {"VERIFIED": 0, "CONTRADICTED": 1, "UNVERIFIED": 2}[receipt["status"]])
+    return receipts, code if receipts else 2
 
-        receipts.append(receipt)
-        saw_contradicted |= receipt["status"] == "CONTRADICTED"
-        saw_unverified |= receipt["status"] == "UNVERIFIED"
 
-    if saw_unverified or not receipts:
-        return receipts, 2
-    if saw_contradicted:
-        return receipts, 1
-    return receipts, 0
+def write_stream(source, output, mirror=None):
+    """Emit each bounded JSONL observation before reading the next claim."""
+    from viper_events import bounded_lines
+    code, count = 0, 0
+    for line_number, (raw, digest) in enumerate(bounded_lines(source), start=1):
+        receipt = stream_receipt(raw, line_number, digest)
+        if receipt is None:
+            continue
+        rendered = json.dumps(receipt, separators=(",", ":"), ensure_ascii=True) + "\n"
+        if mirror is not None:
+            mirror.write(rendered)
+            mirror.flush()
+        output.write(rendered)
+        output.flush()
+        count += 1
+        code = max(code, {"VERIFIED": 0, "CONTRADICTED": 1, "UNVERIFIED": 2}[receipt["status"]])
+    return code if count else 2
 
 
 def run_demo() -> int:
@@ -228,11 +252,15 @@ def main() -> None:
         raise SystemExit(run_demo())
 
     if args.cmd == "stream":
-        receipts, code = stream_verify(sys.stdin)
-        rendered = "".join(json.dumps(receipt, separators=(",", ":"), ensure_ascii=False) + "\n" for receipt in receipts)
-        if args.out:
-            Path(args.out).write_text(rendered, encoding="utf-8")
-        print(rendered, end="")
+        try:
+            if args.out:
+                # Exclusive create prevents accidentally overwriting input or other evidence.
+                with Path(args.out).open("x", encoding="utf-8") as mirror:
+                    code = write_stream(sys.stdin.buffer, sys.stdout, mirror)
+            else:
+                code = write_stream(sys.stdin.buffer, sys.stdout)
+        except OSError:
+            stream_parser.exit(2, "stream input/output failed; any partial receipts are not a completed run\n")
         raise SystemExit(code)
 
     claim = json.loads(Path(args.claim_json).read_text(encoding="utf-8"))
