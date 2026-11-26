@@ -67,7 +67,7 @@ def resolve_claim(root, entry):
             attrs = path.lstat()
         except FileNotFoundError:
             continue
-        if stat.S_ISLNK(attrs.st_mode) or getattr(attrs, "st_file_attributes", 0) & stat.FILE_ATTRIBUTE_REPARSE_POINT:
+        if stat.S_ISLNK(attrs.st_mode) or getattr(attrs, "st_file_attributes", 0) & getattr(stat, "FILE_ATTRIBUTE_REPARSE_POINT", 0):
             raise ValueError("linked artifact paths are unsupported")
         if index == len(parts)-1:
             if not stat.S_ISREG(attrs.st_mode):
