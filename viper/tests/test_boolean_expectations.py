@@ -81,10 +81,10 @@ class BooleanExpectationTests(unittest.TestCase):
                 for expected in (True, False):
                     with self.subTest(listening=listening, expected=expected):
                         receipt = viper.verify({**claim, "expected": expected})
-                        self.assertEqual(receipt["status"], "VERIFIED" if listening == expected else "CONTRADICTED")
+                        self.assertEqual(receipt["status"], "VERIFIED" if listening == expected else "CONTRADICTED", receipt.get("observation"))
                         self.assertIs(receipt["observation"]["listening"], listening)
                 receipt = viper.verify(claim)
-                self.assertEqual(receipt["status"], "VERIFIED" if listening else "CONTRADICTED")
+                self.assertEqual(receipt["status"], "VERIFIED" if listening else "CONTRADICTED", receipt.get("observation"))
 
     def test_direct_file_check_rejects_invalid_expected_before_observation(self):
         with patch.object(viper, "Path") as path:
