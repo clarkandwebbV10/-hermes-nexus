@@ -34,7 +34,7 @@ def utc_now() -> str:
 def checked_stat(path):
     """Inspect a path without following a final link or masking permission errors."""
     st = path.lstat()
-    if stat.S_ISLNK(st.st_mode) or getattr(st, "st_file_attributes", 0) & stat.FILE_ATTRIBUTE_REPARSE_POINT:
+    if stat.S_ISLNK(st.st_mode) or getattr(st, "st_file_attributes", 0) & getattr(stat, "FILE_ATTRIBUTE_REPARSE_POINT", 0):
         raise ValueError("linked artifact paths are unsupported")
     if not stat.S_ISREG(st.st_mode):
         raise ValueError("artifact must be a regular file")
