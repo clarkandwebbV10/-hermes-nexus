@@ -1,3 +1,4 @@
+from contextlib import redirect_stderr
 import hashlib
 import io
 import json
@@ -164,4 +165,31 @@ class EventStreamTests(unittest.TestCase):
                 self.assertEqual(viper.file_state(opened), viper.file_state(os.fstat(fd)))
             finally:
                 os.close(fd)
+
+    def test_events_cli_distinguishes_stream_failure_from_manifest_failure(self):
+        class FailingInput:
+            @property
+            def buffer(self):
+                return self
+
+            def readline(self, limit=-1):
+                raise OSError("seeded stream read failure")
+
+        def invoke(manifest):
+            errors = io.StringIO()
+            with mock.patch.object(sys, "argv", [str(PROJECT/"viper.py"), "events",
+                                                 "--manifest", str(manifest)]), \
+                 mock.patch.object(sys, "stdin", FailingInput()), redirect_stderr(errors):
+                with self.assertRaises(SystemExit) as stopped:
+                    viper.main()
+            self.assertEqual(stopped.exception.code, 2)
+            return errors.getvalue()
+
+        stream_error = invoke(self.manifest)
+        self.assertIn("event input/output failed", stream_error)
+        self.assertNotIn("invalid verification manifest", stream_error)
+
+        manifest_error = invoke(self.root/"missing-manifest.json")
+        self.assertIn("invalid verification manifest", manifest_error)
+        self.assertNotIn("event input/output failed", manifest_error)
 
