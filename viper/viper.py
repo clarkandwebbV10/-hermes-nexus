@@ -42,7 +42,13 @@ def checked_stat(path):
 
 
 def file_identity(st):
-    return st.st_dev, st.st_ino, st.st_size, st.st_mtime_ns, st.st_ctime_ns
+    """Metadata that path-stat and handle-stat APIs can compare across platforms."""
+    return st.st_dev, st.st_ino, st.st_size, st.st_mtime_ns
+
+
+def file_state(st):
+    """A same-API snapshot includes ctime to detect metadata-only changes."""
+    return (*file_identity(st), st.st_ctime_ns)
 
 
 @contextmanager
@@ -70,7 +76,7 @@ def bounded_artifact(path, limit):
                 current = checked_stat(path)
             except FileNotFoundError as exc:
                 raise ValueError("artifact disappeared during observation") from exc
-            if file_identity(os.fstat(stream.fileno())) != file_identity(opened) or file_identity(current) != file_identity(opened):
+            if file_state(os.fstat(stream.fileno())) != file_state(opened) or file_state(current) != file_state(before):
                 raise ValueError("artifact changed during observation")
     finally:
         if fd is not None:
