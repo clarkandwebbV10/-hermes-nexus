@@ -125,9 +125,9 @@ def stream_verify(lines: Iterable[str]) -> tuple[list[dict], int]:
     """Verify newline-delimited JSON claims without binding to one agent framework.
 
     Exit codes:
-      0: every parsed claim was VERIFIED
+      0: at least one claim was parsed and every claim was VERIFIED
       1: at least one claim was CONTRADICTED and none were UNVERIFIED
-      2: at least one line was UNVERIFIED, including malformed JSON
+      2: no claims, or at least one line was UNVERIFIED, including malformed JSON
     """
     receipts: list[dict] = []
     saw_contradicted = False
@@ -161,7 +161,7 @@ def stream_verify(lines: Iterable[str]) -> tuple[list[dict], int]:
         saw_contradicted |= receipt["status"] == "CONTRADICTED"
         saw_unverified |= receipt["status"] == "UNVERIFIED"
 
-    if saw_unverified:
+    if not receipts or saw_unverified:
         return receipts, 2
     if saw_contradicted:
         return receipts, 1
