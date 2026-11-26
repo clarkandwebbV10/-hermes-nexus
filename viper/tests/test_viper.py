@@ -1,8 +1,10 @@
+import errno
 import hashlib
 import json
 import socket
 import tempfile
 import unittest
+from unittest.mock import patch
 import sys
 from pathlib import Path
 
@@ -50,6 +52,27 @@ class HiddenViperTests(unittest.TestCase):
         finally:
             sock.close()
 
+    def test_tcp_inconclusive_is_unverified_for_either_expectation(self):
+        for code in (errno.ETIMEDOUT, errno.ENETUNREACH, errno.EHOSTUNREACH, errno.EACCES):
+            for expected in (True, False):
+                with self.subTest(code=code, expected=expected), patch.object(viper.socket, "socket") as factory:
+                    factory.return_value.connect_ex.return_value = code
+                    claim = {"kind": "tcp_listen", "target": 12345, "expected": expected}
+                    receipts, exit_code = viper.stream_verify([json.dumps(claim)])
+                    self.assertEqual(receipts[0]["status"], "UNVERIFIED")
+                    self.assertNotIn("listening", receipts[0]["observation"])
+                    self.assertEqual(exit_code, 2)
+                    factory.return_value.close.assert_called_once()
+
+    def test_tcp_explicit_refusal_preserves_observed_negative(self):
+        for code in {errno.ECONNREFUSED, getattr(errno, "WSAECONNREFUSED", errno.ECONNREFUSED)}:
+            for expected, status in ((False, "VERIFIED"), (True, "CONTRADICTED")):
+                with self.subTest(code=code, expected=expected), patch.object(viper.socket, "socket") as factory:
+                    factory.return_value.connect_ex.return_value = code
+                    receipt = viper.verify({"kind": "tcp_listen", "target": 12345, "expected": expected})
+                    self.assertEqual(receipt["status"], status)
+                    self.assertEqual(receipt["observation"]["connectionResult"], "refused")
+
     def test_unsupported_is_unverified(self):
         receipt = viper.verify({"kind": "unknown", "target": "x"})
         self.assertEqual(receipt["status"], "UNVERIFIED")
@@ -65,6 +88,31 @@ class HiddenViperTests(unittest.TestCase):
             receipts, code = viper.stream_verify(lines)
             self.assertEqual([r["status"] for r in receipts], ["VERIFIED", "CONTRADICTED"])
             self.assertEqual(code, 1)
+
+    def test_jsonl_stream_empty_or_whitespace_fails_closed(self):
+        for lines in ([], ["", " \t\n", "\n"]):
+            with self.subTest(lines=lines):
+                receipts, code = viper.stream_verify(lines)
+                self.assertEqual(receipts, [])
+                self.assertEqual(code, 2)
+
+    def test_jsonl_write_stream_empty_fails_closed(self):
+        import io
+        for raw in (b"", b"\n", b" \t\n"):
+            with self.subTest(raw=raw):
+                output = io.StringIO()
+                self.assertEqual(viper.write_stream(io.BytesIO(raw), output), 2)
+                self.assertEqual(output.getvalue(), "")
+
+    def test_jsonl_stream_nonempty_verified_still_succeeds(self):
+        with tempfile.TemporaryDirectory() as td:
+            path = Path(td) / "present.txt"
+            path.write_text("ok")
+            receipts, code = viper.stream_verify([
+                "\n", json.dumps({"kind": "file_exists", "target": str(path), "expected": True})
+            ])
+            self.assertEqual([r["status"] for r in receipts], ["VERIFIED"])
+            self.assertEqual(code, 0)
 
     def test_jsonl_stream_marks_bad_json_unverified(self):
         receipts, code = viper.stream_verify(["not-json"])

@@ -53,11 +53,39 @@ validation error, before the filesystem or network is probed. For example,
 that a file is absent. Producers relying on truthiness coercion must send
 native JSON booleans instead.
 
+`tcp_listen` reports an accepted connection as `listening: true`. It reports
+`listening: false` only for an explicit refusal from a loopback address, where
+the probe and the target share a vantage point. A timeout, an unreachable
+network, a permission error, or a refusal from a remote host (which a firewall
+or middlebox can produce) is **UNVERIFIED**, because it does not establish that
+no listener exists. Observed outcomes include `connectionResult`
+(`"connected"` or `"refused"`).
+
 Invalid claim objects and unsupported claim kinds also produce **UNVERIFIED**
 receipts. The `verify` command exits `1` for any non-verified receipt; JSONL
 `stream` exits `2` if any input is unverified, ahead of contradiction exit `1`.
 
 Hidden Viper deliberately does **not** execute arbitrary shell commands in this public MVP.
+
+## Agent event streams
+
+Run `hidden-viper events --manifest checks.json` and send one UTF-8 JSON event per line to stdin. A manifest is supplied by the operator from a stable directory containing the artifacts. It maps an identifier to a filesystem check. For example, this manifest checks a file already present in the project directory.
+
+```json
+{"project-readme":{"kind":"file_exists","target":"README.md","expected":true}}
+```
+
+An event can request that check with this envelope.
+
+```json
+{"type":"outcome.claimed","source":"agent","id":"event-1","claim":"project-readme"}
+```
+
+The receipt binds the verifier result, source, event ID, line number and SHA-256 digests of the raw line and manifest. Source and ID are labels reported by the producer. The artifact bytes provide the independent observation. A tool-completion event, an unfamiliar event, a missing registered claim or a malformed line yields `UNVERIFIED`. The exit code is 0 for verified outcomes, 1 for contradictions and 2 for unverified or empty input.
+
+Supported manifest checks are `file_exists` with a JSON boolean, `file_sha256` with a 64-digit hexadecimal digest and `file_contains` with a bounded text value. Paths use forward slashes relative to the manifest. Use a stable, operator-controlled directory during verification. The adapter supports regular files and absent paths. Event-provided commands, URLs and target overrides have no effect. Stream records are limited to 64 KiB.
+
+Public recorded examples and their replay commands are in `corpus/README.md`.
 
 ## Design rule
 
