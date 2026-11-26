@@ -130,5 +130,39 @@ class ObservationBoundaries(unittest.TestCase):
         self.assertEqual(claim.read_bytes(),before)
 
 
+    def test_manifest_is_bounded_regular_and_strict_utf8(self):
+        from viper_events import load_manifest
+        manifest = self.root / "manifest.json"
+        data = b'{"entry":{"kind":"file_exists","target":"fixture","expected":true}}'
+        manifest.write_bytes(data)
+        root, entries, digest = load_manifest(manifest)
+        self.assertEqual(root,self.root.resolve())
+        self.assertEqual(digest,hashlib.sha256(data).hexdigest())
+        self.assertIn("entry",entries)
+        with patch("viper_events.MAX_MANIFEST_BYTES",10):
+            with self.assertRaises(ValueError):
+                load_manifest(manifest)
+        for invalid in (b'{"entry":NaN}',b'{"entry":1e999}',b'{"entry":"\\ud800"}',b'{"entry":1,"entry":2}',b'\xff'):
+            manifest.write_bytes(invalid)
+            with self.assertRaises(ValueError):
+                load_manifest(manifest)
+        with self.assertRaises(ValueError):
+            load_manifest(self.root)
+
+    def test_event_manifest_rejects_ambiguous_portable_paths(self):
+        from viper_events import resolve_claim
+        for target in ("../outside","CON.txt","NUL","COM1.txt","dir/AUX","name.","name ","a:b","a\\\\b","/absolute","a//b"):
+            with self.subTest(target=target),self.assertRaises(ValueError):
+                resolve_claim(self.root,{"kind":"file_exists","target":target,"expected":False})
+        self.assertEqual(resolve_claim(self.root,{"kind":"file_exists","target":"absent.txt","expected":False})["target"],str(self.root/"absent.txt"))
+
+    def test_disappearing_artifact_is_inconclusive(self):
+        path = self.root / "artifact"
+        path.write_bytes(b"sample")
+        with patch.object(viper.os,"open",side_effect=FileNotFoundError("fixture disappearance")):
+            result = viper.verify({"kind":"file_sha256","target":str(path),"expected":hashlib.sha256(b"sample").hexdigest()})
+        self.assertEqual(result["status"],"UNVERIFIED")
+
+
 if __name__=="__main__":
     unittest.main()
