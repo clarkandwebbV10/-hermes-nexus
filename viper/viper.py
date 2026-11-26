@@ -7,30 +7,92 @@ import errno
 import ipaddress
 import tempfile
 import json
+import math
+import os
+import re
+import stat
 import socket
 import sys
 import urllib.request
+import urllib.error
+import urllib.parse
+from contextlib import contextmanager
 from pathlib import Path
 from typing import Iterable
 
 VERSION = "0.1.3"
 PRODUCT = "Hidden Viper"
+MAX_HASH_BYTES = 256 * 1024 * 1024
+MAX_TEXT_BYTES = 8 * 1024 * 1024
+MAX_CLAIM_BYTES = 65536
 
 
 def utc_now() -> str:
     return dt.datetime.now(dt.timezone.utc).isoformat()
 
 
-def sha256_file(path: str | Path) -> str:
+def checked_stat(path):
+    """Inspect a path without following a final link or masking permission errors."""
+    st = path.lstat()
+    if stat.S_ISLNK(st.st_mode) or getattr(st, "st_file_attributes", 0) & stat.FILE_ATTRIBUTE_REPARSE_POINT:
+        raise ValueError("linked artifact paths are unsupported")
+    if not stat.S_ISREG(st.st_mode):
+        raise ValueError("artifact must be a regular file")
+    return st
+
+
+def file_identity(st):
+    return st.st_dev, st.st_ino, st.st_size, st.st_mtime_ns, st.st_ctime_ns
+
+
+@contextmanager
+def bounded_artifact(path, limit):
+    """Read one bounded regular file; reject observed changes and replaced objects.
+    A stable operator-controlled parent directory remains a trust requirement.
+    """
+    path = Path(path)
+    before = checked_stat(path)
+    if before.st_size > limit:
+        raise ValueError("artifact exceeds observation size limit")
+    flags = os.O_RDONLY | getattr(os, "O_BINARY", 0) | getattr(os, "O_NOFOLLOW", 0) | getattr(os, "O_NONBLOCK", 0)
+    fd = os.open(path, flags)
+    try:
+        opened = os.fstat(fd)
+        if not stat.S_ISREG(opened.st_mode) or file_identity(opened) != file_identity(before):
+            raise ValueError("artifact changed before observation")
+        with os.fdopen(fd, "rb") as stream:
+            fd = None
+            yield stream, opened
+            if file_identity(os.fstat(stream.fileno())) != file_identity(opened) or file_identity(checked_stat(path)) != file_identity(opened):
+                raise ValueError("artifact changed during observation")
+    finally:
+        if fd is not None:
+            os.close(fd)
+
+
+def hash_artifact(path):
     h = hashlib.sha256()
-    with Path(path).open("rb") as f:
-        for chunk in iter(lambda: f.read(1024 * 1024), b""):
+    count = 0
+    with bounded_artifact(path, MAX_HASH_BYTES) as (f, initial):
+        while True:
+            chunk = f.read(min(1024 * 1024, MAX_HASH_BYTES - count + 1))
+            if not chunk:
+                break
+            count += len(chunk)
+            if count > MAX_HASH_BYTES:
+                raise ValueError("artifact grew beyond observation size limit")
             h.update(chunk)
-    return h.hexdigest()
+        if count != initial.st_size:
+            raise ValueError("artifact size changed during observation")
+    return h.hexdigest(), count
+
+
+def sha256_file(path: str | Path) -> str:
+    return hash_artifact(path)[0]
 
 
 def canonical_hash(obj: object) -> str:
-    raw = json.dumps(obj, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode("utf-8")
+    raw = json.dumps(obj, sort_keys=True, separators=(",", ":"), ensure_ascii=False, allow_nan=False).encode("utf-8")
     return hashlib.sha256(raw).hexdigest()
 
 
@@ -42,37 +104,72 @@ def boolean_expectation(claim: dict) -> bool:
     return expected
 
 
+def artifact_path(claim):
+    target = claim["target"]
+    if not isinstance(target, str) or not target or len(target) > 4096 or "\x00" in target:
+        raise ValueError("target must be a bounded file path")
+    return Path(target).expanduser()
+
+
 def check_file_exists(claim: dict) -> tuple[bool, dict]:
     expected = boolean_expectation(claim)
-    path = Path(claim["target"]).expanduser()
-    actual = path.exists()
-    return actual == expected, {"path": str(path.resolve()) if path.exists() else str(path), "exists": actual}
+    path = artifact_path(claim)
+    try:
+        checked_stat(path)
+        actual = True
+    except FileNotFoundError:
+        actual = False
+    return actual == expected, {"path": str(path), "exists": actual}
 
 
 def check_file_sha256(claim: dict) -> tuple[bool, dict]:
-    path = Path(claim["target"]).expanduser()
-    if not path.is_file():
+    path = artifact_path(claim)
+    expected = claim["expected"]
+    if not isinstance(expected, str) or not re.fullmatch(r"[a-fA-F0-9]{64}", expected):
+        raise ValueError("expected must be a SHA-256 digest")
+    try:
+        actual, size = hash_artifact(path)
+    except FileNotFoundError:
         return False, {"path": str(path), "error": "file missing"}
-    actual = sha256_file(path)
-    expected = str(claim["expected"]).lower()
-    return actual == expected, {"path": str(path.resolve()), "sha256": actual, "bytes": path.stat().st_size}
+    return actual == expected.lower(), {"path": str(path), "sha256": actual, "bytes": size}
 
 
 def check_file_contains(claim: dict) -> tuple[bool, dict]:
-    path = Path(claim["target"]).expanduser()
-    if not path.is_file():
+    path = artifact_path(claim)
+    needle = claim["expected"]
+    if not isinstance(needle, str) or not 0 < len(needle) <= 2048:
+        raise ValueError("expected must be nonempty bounded text")
+    encoding = claim.get("encoding", "utf-8")
+    if encoding not in ("utf-8", "utf-8-sig", "ascii", "utf-16", "utf-16-le", "utf-16-be"):
+        raise ValueError("unsupported text encoding")
+    try:
+        with bounded_artifact(path, MAX_TEXT_BYTES) as (f, initial):
+            raw = f.read(MAX_TEXT_BYTES + 1)
+            if len(raw) > MAX_TEXT_BYTES or len(raw) != initial.st_size:
+                raise ValueError("text artifact changed or exceeds observation limit")
+            text = raw.decode(encoding, errors="strict")
+    except FileNotFoundError:
         return False, {"path": str(path), "error": "file missing"}
-    needle = str(claim["expected"])
-    text = path.read_text(encoding=claim.get("encoding", "utf-8"), errors="replace")
     found = needle in text
-    return found, {"path": str(path.resolve()), "contains": found, "needleSha256": hashlib.sha256(needle.encode()).hexdigest()}
+    return found, {"path": str(path), "contains": found, "needleSha256": hashlib.sha256(needle.encode()).hexdigest()}
+
+
+def observation_timeout(claim, default):
+    timeout = claim.get("timeoutSeconds", default)
+    if type(timeout) not in (int, float) or not math.isfinite(timeout) or not 0 < timeout <= 10:
+        raise ValueError("timeoutSeconds must be finite and in (0, 10]")
+    return timeout
 
 
 def check_tcp_listen(claim: dict) -> tuple[bool, dict]:
     expected = boolean_expectation(claim)
     host = claim.get("host", "127.0.0.1")
-    port = int(claim["target"])
-    timeout = float(claim.get("timeoutSeconds", 1.0))
+    port = claim["target"]
+    if type(port) is not int or not 1 <= port <= 65535:
+        raise ValueError("target must be an integer TCP port")
+    if not isinstance(host, str) or not 0 < len(host) <= 253:
+        raise ValueError("invalid TCP host")
+    timeout = observation_timeout(claim, 1.0)
     sock = socket.socket()
     sock.settimeout(timeout)
     try:
@@ -93,16 +190,33 @@ def check_tcp_listen(claim: dict) -> tuple[bool, dict]:
     raise OSError(code, "TCP observation inconclusive; absence of a connection does not establish absence of a listener")
 
 
+class ObserveRedirect(urllib.request.HTTPRedirectHandler):
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        return None
+
+
 def check_http_status(claim: dict) -> tuple[bool, dict]:
-    url = str(claim["target"])
-    expected = int(claim.get("expected", 200))
-    timeout = float(claim.get("timeoutSeconds", 3.0))
+    url = claim["target"]
+    expected = claim.get("expected", 200)
+    if not isinstance(url, str) or len(url) > 2048 or any(ord(c) <= 32 or ord(c) == 127 for c in url):
+        raise ValueError("invalid HTTP URL")
+    parts = urllib.parse.urlsplit(url)
+    if parts.scheme not in ("http", "https") or not parts.hostname or parts.username is not None or parts.password is not None or parts.fragment:
+        raise ValueError("only credential-free HTTP(S) URLs without fragments are supported")
+    if type(expected) is not int or not 100 <= expected <= 599:
+        raise ValueError("expected must be an integer HTTP status")
+    timeout = observation_timeout(claim, 3.0)
+    # Do not follow a redirect or inherit proxy configuration. Observe the named endpoint.
+    opener = urllib.request.build_opener(urllib.request.ProxyHandler({}), ObserveRedirect())
     try:
-        with urllib.request.urlopen(url, timeout=timeout) as response:
+        with opener.open(url, timeout=timeout) as response:
             status = int(response.status)
-            return status == expected, {"url": url, "status": status}
-    except Exception as exc:
-        return False, {"url": url, "error": f"{type(exc).__name__}: {exc}"}
+    except urllib.error.HTTPError as response:
+        try:
+            status = int(response.code)
+        finally:
+            response.close()
+    return status == expected, {"url": url, "status": status, "redirectFollowed": False}
 
 
 CHECKS = {
@@ -115,8 +229,13 @@ CHECKS = {
 
 
 def verify(claim: dict) -> dict:
-    receipt = {"schema": "hidden-viper.receipt/v1", "hiddenViperVersion": VERSION, "observedAtUtc": utc_now(), "claim": claim}
+    receipt = {"schema": "hidden-viper.receipt/v1", "hiddenViperVersion": VERSION, "observedAtUtc": utc_now(), "claim": None}
     try:
+        # Validate JSON representability before retaining an untrusted claim in a receipt.
+        serialized = json.dumps(claim, ensure_ascii=False, allow_nan=False).encode("utf-8")
+        if len(serialized) > MAX_CLAIM_BYTES:
+            raise ValueError("claim exceeds observation size limit")
+        receipt["claim"] = claim
         if not isinstance(claim, dict):
             raise ValueError("claim must be a JSON object")
         kind = claim.get("kind")
@@ -263,13 +382,22 @@ def main() -> None:
             stream_parser.exit(2, "stream input/output failed; any partial receipts are not a completed run\n")
         raise SystemExit(code)
 
-    claim = json.loads(Path(args.claim_json).read_text(encoding="utf-8"))
-    receipt = verify(claim)
-    rendered = json.dumps(receipt, indent=2, ensure_ascii=False) + "\n"
-    if args.out:
-        Path(args.out).write_text(rendered, encoding="utf-8")
-    print(rendered, end="")
-    raise SystemExit(0 if receipt["status"] == "VERIFIED" else 1)
+    try:
+        with bounded_artifact(Path(args.claim_json), MAX_CLAIM_BYTES) as (source, initial):
+            raw = source.read(MAX_CLAIM_BYTES + 1)
+            if len(raw) != initial.st_size or len(raw) > MAX_CLAIM_BYTES:
+                raise ValueError("claim file changed or exceeds size limit")
+        receipt = stream_receipt(raw, 1, hashlib.sha256(raw).hexdigest())
+        if receipt is None:
+            receipt = invalid_stream_receipt(1, hashlib.sha256(raw).hexdigest(), "empty claim")
+        rendered = json.dumps(receipt, indent=2, ensure_ascii=True) + "\n"
+        if args.out:
+            with Path(args.out).open("x", encoding="utf-8") as output:
+                output.write(rendered)
+        print(rendered, end="", flush=True)
+        raise SystemExit(0 if receipt["status"] == "VERIFIED" else 1)
+    except (OSError, ValueError, RecursionError):
+        verify_parser.exit(2, "claim input/output failed; existing evidence was not overwritten\n")
 
 
 if __name__ == "__main__":
