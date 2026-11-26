@@ -372,12 +372,14 @@ def main() -> None:
     args = parser.parse_args()
 
     if args.cmd == "events":
-        from viper_events import verify_events
+        from viper_events import verify_events, ManifestError
 
         try:
             code = verify_events(sys.stdin.buffer, sys.stdout, args.manifest)
-        except (OSError, ValueError, RecursionError) as error:
+        except ManifestError as error:
             events_parser.exit(2, f"invalid verification manifest: {error}\n")
+        except (OSError, ValueError, RecursionError) as error:
+            events_parser.exit(2, f"event input/output failed; partial receipts are not a completed run: {error}\n")
         raise SystemExit(code)
 
     if args.cmd == "demo":
