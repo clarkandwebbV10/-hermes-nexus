@@ -61,10 +61,11 @@ def replay(record):
 def read_downloads(root, record):
     folder = root/str(record["runId"])
     jobs = json.loads((folder/"jobs.json").read_bytes())["jobs"]
-    if any(j["run_id"] != record["runId"] for j in jobs):
+    if any(not isinstance(j, dict) or j.get("run_id") != record["runId"] for j in jobs):
         raise ValueError("a job belongs to a different run")
     artifacts = json.loads((folder/"artifacts.json").read_bytes())["artifacts"]
-    if any(a.get("workflow_run", {}).get("id") != record["runId"] for a in artifacts):
+    if any(not isinstance(a, dict) or not isinstance(a.get("workflow_run"), dict)
+           or a["workflow_run"].get("id") != record["runId"] for a in artifacts):
         raise ValueError("an artifact belongs to a different run")
     report_lines = (folder/"report.log").read_text(encoding="utf-8-sig").splitlines()
     return {**record, "reportOutput":[line for line in report_lines if re.fullmatch(r"\S+Z (Overall status: (SUCCESS|FAILURE)|Tests passed: \d+/\d+)",line)],
