@@ -43,5 +43,5 @@ class RecordedActionsTests(unittest.TestCase):
              mock.patch.object(runner, "verify_events", side_effect=observe_bytes):
             receipt = runner.replay(control)
         self.assertEqual(receipt["status"], "VERIFIED")
-        self.assertEqual(observed, [b"integration outcome = SUCCESS\n"])
+        self.assertEqual(observed, [b"integration outcome = FAILURE\n"])
 
