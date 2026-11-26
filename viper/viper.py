@@ -3,6 +3,9 @@ from __future__ import annotations
 import argparse
 import datetime as dt
 import hashlib
+import errno
+import ipaddress
+import tempfile
 import json
 import socket
 import sys
@@ -76,8 +79,18 @@ def check_tcp_listen(claim: dict) -> tuple[bool, dict]:
         code = sock.connect_ex((host, port))
     finally:
         sock.close()
-    listening = code == 0
-    return listening == expected, {"host": host, "port": port, "listening": listening}
+    if code == 0:
+        return expected is True, {"host": host, "port": port, "listening": True,
+                                  "observation": "connection accepted from probe"}
+    try:
+        loopback = ipaddress.ip_address(host).is_loopback
+    except ValueError:
+        loopback = False
+    refused = {errno.ECONNREFUSED, getattr(errno, "WSAECONNREFUSED", 10061)}
+    if loopback and code in refused:
+        return expected is False, {"host": host, "port": port, "listening": False,
+                                   "observation": "loopback connection refused at probe time"}
+    raise OSError(code, "TCP observation inconclusive; absence of a connection does not establish absence of a listener")
 
 
 def check_http_status(claim: dict) -> tuple[bool, dict]:
@@ -127,7 +140,7 @@ def stream_verify(lines: Iterable[str]) -> tuple[list[dict], int]:
     Exit codes:
       0: every parsed claim was VERIFIED
       1: at least one claim was CONTRADICTED and none were UNVERIFIED
-      2: at least one line was UNVERIFIED, including malformed JSON
+      2: no claims, or at least one line was UNVERIFIED, including malformed JSON
     """
     receipts: list[dict] = []
     saw_contradicted = False
@@ -161,7 +174,7 @@ def stream_verify(lines: Iterable[str]) -> tuple[list[dict], int]:
         saw_contradicted |= receipt["status"] == "CONTRADICTED"
         saw_unverified |= receipt["status"] == "UNVERIFIED"
 
-    if saw_unverified:
+    if saw_unverified or not receipts:
         return receipts, 2
     if saw_contradicted:
         return receipts, 1
@@ -169,20 +182,19 @@ def stream_verify(lines: Iterable[str]) -> tuple[list[dict], int]:
 
 
 def run_demo() -> int:
-    demo = Path("hidden-viper-demo-output.txt")
-    demo.write_text("deployment-state=ready\n", encoding="utf-8")
-    claims = [
-        {"id": "demo-file", "kind": "file_exists", "target": str(demo), "expected": True},
-        {"id": "demo-content", "kind": "file_contains", "target": str(demo), "expected": "deployment-state=ready"},
-        {"id": "demo-contradiction", "kind": "file_exists", "target": "definitely-not-created.txt", "expected": True},
-    ]
-    receipts = [verify(claim) for claim in claims]
-    print(json.dumps(receipts, indent=2))
-    try:
-        demo.unlink()
-    except OSError:
-        pass
-    return 0 if [r["status"] for r in receipts] == ["VERIFIED", "VERIFIED", "CONTRADICTED"] else 2
+    # No caller-owned path is created, overwritten or removed.
+    with tempfile.TemporaryDirectory(prefix="hidden-viper-demo-") as folder:
+        root = Path(folder)
+        demo = root / "sample.txt"
+        demo.write_text("deployment-state=ready\n", encoding="utf-8")
+        claims = [
+            {"id": "demo-file", "kind": "file_exists", "target": str(demo), "expected": True},
+            {"id": "demo-content", "kind": "file_contains", "target": str(demo), "expected": "deployment-state=ready"},
+            {"id": "demo-contradiction", "kind": "file_exists", "target": str(root / "absent.txt"), "expected": True},
+        ]
+        receipts = [verify(claim) for claim in claims]
+        print(json.dumps(receipts, indent=2))
+        return 0 if [r["status"] for r in receipts] == ["VERIFIED", "VERIFIED", "CONTRADICTED"] else 2
 
 
 def main() -> None:
