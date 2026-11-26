@@ -81,10 +81,32 @@ class BooleanExpectationTests(unittest.TestCase):
                 for expected in (True, False):
                     with self.subTest(listening=listening, expected=expected):
                         receipt = viper.verify({**claim, "expected": expected})
-                        self.assertEqual(receipt["status"], "VERIFIED" if listening == expected else "CONTRADICTED")
-                        self.assertIs(receipt["observation"]["listening"], listening)
+                        if not listening and receipt["status"] == "UNVERIFIED":
+                            # Windows may return WSAEWOULDBLOCK for a bound,
+                            # non-listening socket: that is NOT proven absence.
+                            self.assertIn("inconclusive", receipt["observation"]["error"])
+                        else:
+                            self.assertEqual(receipt["status"], "VERIFIED" if listening == expected else "CONTRADICTED", receipt.get("observation"))
+                            self.assertIs(receipt["observation"]["listening"], listening)
                 receipt = viper.verify(claim)
-                self.assertEqual(receipt["status"], "VERIFIED" if listening else "CONTRADICTED")
+                if not listening and receipt["status"] == "UNVERIFIED":
+                    self.assertIn("inconclusive", receipt["observation"]["error"])
+                else:
+                    self.assertEqual(receipt["status"], "VERIFIED" if listening else "CONTRADICTED", receipt.get("observation"))
+
+
+    def test_loopback_refusal_still_proves_scoped_negative(self):
+        # Deterministic refusal case stays distinct from a would-block result.
+        import errno
+        with patch.object(viper.socket, "socket") as socket_factory:
+            socket_factory.return_value.connect_ex.return_value = errno.ECONNREFUSED
+            for expected, status in ((True, "CONTRADICTED"), (False, "VERIFIED")):
+                with self.subTest(expected=expected):
+                    receipt = viper.verify({"kind": "tcp_listen", "host": "127.0.0.1",
+                                            "target": 12345, "expected": expected})
+                    self.assertEqual(receipt["status"], status, receipt.get("observation"))
+                    self.assertIs(receipt["observation"]["listening"], False)
+
 
     def test_direct_file_check_rejects_invalid_expected_before_observation(self):
         with patch.object(viper, "Path") as path:

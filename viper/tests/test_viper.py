@@ -66,6 +66,31 @@ class HiddenViperTests(unittest.TestCase):
             self.assertEqual([r["status"] for r in receipts], ["VERIFIED", "CONTRADICTED"])
             self.assertEqual(code, 1)
 
+    def test_jsonl_stream_empty_or_whitespace_fails_closed(self):
+        for lines in ([], ["", " \t\n", "\n"]):
+            with self.subTest(lines=lines):
+                receipts, code = viper.stream_verify(lines)
+                self.assertEqual(receipts, [])
+                self.assertEqual(code, 2)
+
+    def test_jsonl_write_stream_empty_fails_closed(self):
+        import io
+        for raw in (b"", b"\n", b" \t\n"):
+            with self.subTest(raw=raw):
+                output = io.StringIO()
+                self.assertEqual(viper.write_stream(io.BytesIO(raw), output), 2)
+                self.assertEqual(output.getvalue(), "")
+
+    def test_jsonl_stream_nonempty_verified_still_succeeds(self):
+        with tempfile.TemporaryDirectory() as td:
+            path = Path(td) / "present.txt"
+            path.write_text("ok")
+            receipts, code = viper.stream_verify([
+                "\n", json.dumps({"kind": "file_exists", "target": str(path), "expected": True})
+            ])
+            self.assertEqual([r["status"] for r in receipts], ["VERIFIED"])
+            self.assertEqual(code, 0)
+
     def test_jsonl_stream_marks_bad_json_unverified(self):
         receipts, code = viper.stream_verify(["not-json"])
         self.assertEqual(receipts[0]["status"], "UNVERIFIED")

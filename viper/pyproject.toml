@@ -16,4 +16,4 @@ hidden-viper = "viper:main"
 viper = "viper:main"
 
 [tool.setuptools]
-py-modules = ["viper"]
+py-modules = ["viper", "viper_events"]
