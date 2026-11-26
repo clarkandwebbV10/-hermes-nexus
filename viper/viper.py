@@ -55,7 +55,10 @@ def bounded_artifact(path, limit):
     if before.st_size > limit:
         raise ValueError("artifact exceeds observation size limit")
     flags = os.O_RDONLY | getattr(os, "O_BINARY", 0) | getattr(os, "O_NOFOLLOW", 0) | getattr(os, "O_NONBLOCK", 0)
-    fd = os.open(path, flags)
+    try:
+        fd = os.open(path, flags)
+    except FileNotFoundError as exc:
+        raise ValueError("artifact disappeared before observation") from exc
     try:
         opened = os.fstat(fd)
         if not stat.S_ISREG(opened.st_mode) or file_identity(opened) != file_identity(before):
@@ -63,7 +66,11 @@ def bounded_artifact(path, limit):
         with os.fdopen(fd, "rb") as stream:
             fd = None
             yield stream, opened
-            if file_identity(os.fstat(stream.fileno())) != file_identity(opened) or file_identity(checked_stat(path)) != file_identity(opened):
+            try:
+                current = checked_stat(path)
+            except FileNotFoundError as exc:
+                raise ValueError("artifact disappeared during observation") from exc
+            if file_identity(os.fstat(stream.fileno())) != file_identity(opened) or file_identity(current) != file_identity(opened):
                 raise ValueError("artifact changed during observation")
     finally:
         if fd is not None:
