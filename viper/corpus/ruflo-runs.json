@@ -1,0 +1,144 @@
+[
+  {
+    "runId": 44559314121,
+    "reportJobId": 135684512785,
+    "reportOutput": [
+      "2026-11-19T15:54:03.7509527Z Overall status: SUCCESS",
+      "2026-11-19T15:54:03.7509712Z Tests passed: 0/0"
+    ],
+    "jobs": [
+      {
+        "id": 135683907302,
+        "name": "🚀 Integration Test Setup",
+        "conclusion": "failure"
+      },
+      {
+        "id": 135684512785,
+        "name": "📊 Integration Test Report",
+        "conclusion": "success"
+      },
+      {
+        "id": 135684514624,
+        "name": "🧠 Memory Sharing Integration",
+        "conclusion": "skipped"
+      },
+      {
+        "id": 135684514914,
+        "name": "🤝 Agent Coordination Tests",
+        "conclusion": "skipped"
+      },
+      {
+        "id": 135684515331,
+        "name": "🛡️ Fault Tolerance Tests",
+        "conclusion": "skipped"
+      },
+      {
+        "id": 135684515869,
+        "name": "⚡ Performance Integration Tests",
+        "conclusion": "skipped"
+      }
+    ],
+    "artifacts": [
+      {
+        "id": 14546103561,
+        "name": "integration-test-final-report-"
+      }
+    ],
+    "publicRun": "https://github.com/clarkandwebbV10/ruflo/actions/runs/44559314121"
+  },
+  {
+    "runId": 44582410370,
+    "reportJobId": 135766713543,
+    "reportOutput": [
+      "2026-11-19T17:56:50.0127855Z Overall status: SUCCESS",
+      "2026-11-19T17:56:50.0128044Z Tests passed: 0/0"
+    ],
+    "jobs": [
+      {
+        "id": 135766255795,
+        "name": "🚀 Integration Test Setup",
+        "conclusion": "failure"
+      },
+      {
+        "id": 135766713543,
+        "name": "📊 Integration Test Report",
+        "conclusion": "success"
+      },
+      {
+        "id": 135766715550,
+        "name": "⚡ Performance Integration Tests",
+        "conclusion": "skipped"
+      },
+      {
+        "id": 135766715815,
+        "name": "🧠 Memory Sharing Integration",
+        "conclusion": "skipped"
+      },
+      {
+        "id": 135766715837,
+        "name": "🛡️ Fault Tolerance Tests",
+        "conclusion": "skipped"
+      },
+      {
+        "id": 135766717196,
+        "name": "🤝 Agent Coordination Tests",
+        "conclusion": "skipped"
+      }
+    ],
+    "artifacts": [
+      {
+        "id": 14558649450,
+        "name": "integration-test-final-report-"
+      }
+    ],
+    "publicRun": "https://github.com/clarkandwebbV10/ruflo/actions/runs/44582410370"
+  },
+  {
+    "runId": 44583377147,
+    "reportJobId": 135771186907,
+    "reportOutput": [
+      "2026-11-19T18:07:55.8887661Z Overall status: FAILURE",
+      "2026-11-19T18:07:55.8888058Z Tests passed: 0/0"
+    ],
+    "jobs": [
+      {
+        "id": 135769678673,
+        "name": "🚀 Integration Test Setup",
+        "conclusion": "failure"
+      },
+      {
+        "id": 135771186907,
+        "name": "📊 Integration Test Report",
+        "conclusion": "failure"
+      },
+      {
+        "id": 135771188356,
+        "name": "⚡ Performance Integration Tests",
+        "conclusion": "skipped"
+      },
+      {
+        "id": 135771188642,
+        "name": "🛡️ Fault Tolerance Tests",
+        "conclusion": "skipped"
+      },
+      {
+        "id": 135771188686,
+        "name": "🤝 Agent Coordination Tests",
+        "conclusion": "skipped"
+      },
+      {
+        "id": 135771188687,
+        "name": "🧠 Memory Sharing Integration",
+        "conclusion": "skipped"
+      }
+    ],
+    "artifacts": [
+      {
+        "id": 14560267985,
+        "name": "integration-test-final-report-"
+      }
+    ],
+    "publicRun": "https://github.com/clarkandwebbV10/ruflo/actions/runs/44583377147"
+  }
+]
+
