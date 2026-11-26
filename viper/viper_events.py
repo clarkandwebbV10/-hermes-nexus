@@ -6,6 +6,7 @@ import stat
 from pathlib import Path
 
 MAX_LINE = 65536
+MAX_MANIFEST_BYTES = 1048576
 IDENTIFIER = re.compile(r"[A-Za-z0-9][A-Za-z0-9_./:@-]{0,191}\Z")
 
 
@@ -16,6 +17,18 @@ def unique_fields(pairs):
             raise ValueError("duplicate JSON field")
         result[key] = value
     return result
+
+
+def reject_constant(value):
+    raise ValueError("non-finite JSON constant")
+
+
+def strict_json(raw):
+    value = json.loads(raw.decode("utf-8"), object_pairs_hook=unique_fields,
+                       parse_constant=reject_constant)
+    # Reject invalid Unicode and finite-overflow floats before observation.
+    json.dumps(value, ensure_ascii=False, allow_nan=False).encode("utf-8")
+    return value
 
 
 def identifier(value):
@@ -37,13 +50,18 @@ def resolve_claim(root, entry):
             raise ValueError("file_contains expects nonempty bounded text")
     else:
         raise ValueError("unsupported manifest check")
-    if not isinstance(name, str) or not name or "\\" in name or ":" in name:
+    if (not isinstance(name, str) or not 0 < len(name) <= 4096
+            or any(ord(c) < 32 or ord(c) == 127 for c in name)
+            or any(c in name for c in '\\:<>|?*"')):
         raise ValueError("target must be a portable relative path")
     parts = name.split("/")
-    if any(part in ("", ".", "..") for part in parts):
-        raise ValueError("target must stay within the manifest directory")
+    reserved = {"CON", "PRN", "AUX", "NUL", "CONIN$", "CONOUT$"}
+    reserved.update(f"{prefix}{n}" for prefix in ("COM","LPT") for n in "123456789¹²³")
+    if any(part in ("", ".", "..") or part.endswith((".", " "))
+           or part.split(".",1)[0].upper() in reserved for part in parts):
+        raise ValueError("target must stay within the manifest directory and use portable components")
     path = root
-    for part in parts:
+    for index, part in enumerate(parts):
         path = path / part
         try:
             attrs = path.lstat()
@@ -51,17 +69,24 @@ def resolve_claim(root, entry):
             continue
         if stat.S_ISLNK(attrs.st_mode) or getattr(attrs, "st_file_attributes", 0) & stat.FILE_ATTRIBUTE_REPARSE_POINT:
             raise ValueError("linked artifact paths are unsupported")
-        if path == root / name and not stat.S_ISREG(attrs.st_mode):
-            raise ValueError("target must be a regular file")
+        if index == len(parts)-1:
+            if not stat.S_ISREG(attrs.st_mode):
+                raise ValueError("target must be a regular file")
+        elif not stat.S_ISDIR(attrs.st_mode):
+            raise ValueError("intermediate target component must be a directory")
     return {"kind": kind, "target": str(path), "expected": expected}
 
 
 def load_manifest(filename):
-    manifest = Path(filename).resolve(strict=True)
-    if manifest.stat().st_size > 1048576:
-        raise ValueError("manifest exceeds 1 MiB")
-    data = manifest.read_bytes()
-    entries = json.loads(data, object_pairs_hook=unique_fields)
+    from viper import bounded_artifact
+    requested = Path(filename).absolute()
+    # Resolve only the operator-selected parent. The final manifest may not be a link.
+    manifest = requested.parent.resolve(strict=True) / requested.name
+    with bounded_artifact(manifest, MAX_MANIFEST_BYTES) as (source, initial):
+        data = source.read(MAX_MANIFEST_BYTES + 1)
+        if len(data) > MAX_MANIFEST_BYTES or len(data) != initial.st_size:
+            raise ValueError("manifest changed or exceeds 1 MiB")
+    entries = strict_json(data)
     if not isinstance(entries, dict) or not entries or not all(identifier(key) for key in entries):
         raise ValueError("manifest must map claim identifiers to checks")
     return manifest.parent, entries, hashlib.sha256(data).hexdigest()
@@ -96,7 +121,7 @@ def verify_events(stream, output, manifest_path):
         try:
             if raw is None:
                 raise ValueError("event exceeds 64 KiB")
-            event = json.loads(raw.decode("utf-8"), object_pairs_hook=unique_fields)
+            event = strict_json(raw)
             if not isinstance(event, dict):
                 raise ValueError("event must be an object")
             for key in ("source", "id", "type"):
